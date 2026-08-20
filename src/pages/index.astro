@@ -418,115 +418,159 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     }
 
     function buildPreviewHtml(data) {
-        const metaRows = [];
-
-        // Collect meta items
-        const metaKeys = [
-            "Contributors", "Tags", "Requires at least", "Tested up to",
-            "Requires PHP", "Stable tag", "License", "License URI",
-            "Donate link", "WC requires at least", "WC tested up to"
-        ];
-
-        for (const key of metaKeys) {
-            if (data.headers[key]) {
-                metaRows.push({ label: key, value: data.headers[key] });
-            }
+        // --- Sidebar meta ---
+        const sidebarMeta = [];
+        const metaMap: Record<string, string> = {};
+        for (const [k, v] of Object.entries(data.headers)) {
+            metaMap[k.toLowerCase()] = v;
         }
+        if (metaMap["stable tag"]) sidebarMeta.push({ label: "Version", value: metaMap["stable tag"] });
+        if (metaMap["requires at least"]) sidebarMeta.push({ label: "Requires at least", value: metaMap["requires at least"] });
+        if (metaMap["tested up to"]) sidebarMeta.push({ label: "Tested up to", value: metaMap["tested up to"] });
+        if (metaMap["requires php"]) sidebarMeta.push({ label: "Requires PHP", value: metaMap["requires php"] });
+        if (metaMap["license"]) sidebarMeta.push({ label: "License", value: metaMap["license"] });
 
-        // Add any remaining headers not in the standard list
-        for (const [key, val] of Object.entries(data.headers)) {
-            if (!metaKeys.includes(key)) {
-                metaRows.push({ label: key, value: val });
-            }
-        }
+        const contributors = data.headers["Contributors"] || "";
+        const tags = data.headers["Tags"] || "";
+        const author = data.headers["Contributors"]?.split(",")[0]?.trim() || "";
 
-        const metaHtml = metaRows.map(m =>
-            `<div class="wp-meta-item">
-                <span class="wp-meta-label">${esc(m.label)}</span>
-                <span class="wp-meta-value">${esc(m.value)}</span>
-            </div>`
+        const sidebarMetaHtml = sidebarMeta.map(m =>
+            `<tr class="wp-sidebar-row">
+                <th class="wp-sidebar-th">${esc(m.label)}</th>
+                <td class="wp-sidebar-td">${esc(m.value)}</td>
+            </tr>`
         ).join("");
 
-        // Description section
+        const tagsHtml = tags ? tags.split(",").map(t =>
+            `<span class="wp-tag">${esc(t.trim())}</span>`
+        ).join("") : "";
+
+        // --- Description section ---
         const descSection = data.sections.find(s => s.title.toLowerCase() === "description");
         const descHtml = descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`;
 
-        // Installation section
+        // --- Installation section ---
         const installSection = data.sections.find(s => s.title.toLowerCase() === "installation");
         const installHtml = installSection ? renderContent(installSection.content) : "";
 
-        // FAQ
+        // --- FAQ ---
         const faqHtml = data.faq.length > 0
-            ? data.faq.map(f =>
-                `<details class="wp-faq-item">
-                    <summary class="wp-faq-q">${esc(f.question)}?</summary>
-                    <div class="wp-faq-a">${renderContent(f.answer)}</div>
-                </details>`
-              ).join("")
-            : "";
-
-        // Screenshots
-        const ssHtml = data.screenshots.length > 0
-            ? `<div class="wp-screenshots">
-                ${data.screenshots.map(ss =>
-                    `<div class="wp-screenshot">
-                        <div class="wp-screenshot-img">
-                            <span class="wp-screenshot-num">${esc(ss.number)}</span>
-                        </div>
-                        <p class="wp-screenshot-caption">${esc(ss.caption)}</p>
-                    </div>`
+            ? `<div class="wp-section-block">
+                <h2 class="wp-block-title">FAQ</h2>
+                ${data.faq.map(f =>
+                    `<details class="wp-faq-item">
+                        <summary class="wp-faq-q">${esc(f.question)}?</summary>
+                        <div class="wp-faq-a">${renderContent(f.answer)}</div>
+                    </details>`
                 ).join("")}
                </div>`
             : "";
 
-        // Changelog section
+        // --- Screenshots ---
+        const ssHtml = data.screenshots.length > 0
+            ? `<div class="wp-section-block">
+                <h2 class="wp-block-title">Screenshots</h2>
+                <div class="wp-screenshots">
+                    ${data.screenshots.map(ss =>
+                        `<div class="wp-screenshot">
+                            <div class="wp-screenshot-img">
+                                <span class="wp-screenshot-num">${esc(ss.number)}</span>
+                            </div>
+                            <p class="wp-screenshot-caption">${esc(ss.caption)}</p>
+                        </div>`
+                    ).join("")}
+                </div>
+               </div>`
+            : "";
+
+        // --- Changelog ---
         const changelogSection = data.sections.find(s => s.title.toLowerCase() === "changelog");
         const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
 
-        // Other sections (not description, installation, FAQ, screenshots, changelog)
+        // --- Other sections ---
         const otherSections = data.sections.filter(s => {
             const t = s.title.toLowerCase();
             return t !== "description" && t !== "installation" &&
                    t !== "frequently asked questions" && t !== "screenshots" &&
                    t !== "changelog";
         });
-
         const otherHtml = otherSections.map(s =>
-            `<section class="wp-section">
-                <h2 class="wp-section-title">${esc(s.title)}</h2>
-                <div class="wp-section-content wp-prose">${renderContent(s.content)}</div>
-            </section>`
+            `<div class="wp-section-block">
+                <h2 class="wp-block-title">${esc(s.title)}</h2>
+                <div class="wp-prose">${renderContent(s.content)}</div>
+            </div>`
         ).join("");
 
-        // Tabbed sections
-        const tabs = [];
-        if (descHtml) tabs.push({ id: "description", label: "Description", content: descHtml });
-        if (installHtml) tabs.push({ id: "installation", label: "Installation", content: installHtml });
-        if (faqHtml) tabs.push({ id: "faq", label: "FAQ", content: faqHtml });
-        if (ssHtml) tabs.push({ id: "screenshots", label: "Screenshots", content: ssHtml });
-        if (changelogHtml) tabs.push({ id: "changelog", label: "Changelog", content: changelogHtml });
-        if (otherHtml) tabs.push({ id: "other", label: "Other", content: otherHtml });
+        // --- Build tab content ---
+        // WordPress.org shows: Details tab = Description + Screenshots + FAQ + Changelog
+        const detailsContent = [descHtml, ssHtml, faqHtml, changelogHtml, otherHtml].filter(Boolean).join("");
+        const tabs = [
+            { id: "details", label: "Details", content: detailsContent },
+        ];
+        if (installHtml) tabs.push({ id: "installation", label: "Installation", content: `<div class="wp-section-block"><div class="wp-prose">${installHtml}</div></div>` });
+        tabs.push({ id: "development", label: "Development", content: `<p class="wp-prose" style="color:var(--text-dim)">Development information is not available in readme.txt previews.</p>` });
 
+        // --- Full layout ---
         return `
-            <div class="wp-plugin-card">
-                <div class="wp-plugin-header">
-                    <h1 class="wp-plugin-name">${esc(data.name)}</h1>
+            <div class="wp-plugin-page">
+                <!-- Plugin header -->
+                <div class="wp-plugin-head">
+                    <div class="wp-plugin-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg>
+                    </div>
+                    <div class="wp-plugin-head-info">
+                        <h1 class="wp-plugin-name">${esc(data.name)}</h1>
+                        <p class="wp-plugin-author">By ${author ? `<a href="#">${esc(author)}</a>` : esc(contributors || "Unknown")}</p>
+                    </div>
+                    <div class="wp-plugin-actions">
+                        <button class="wp-heart-btn" title="Favorite">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </button>
+                        <a href="#" class="wp-download-btn">Download</a>
+                    </div>
                 </div>
-                <p class="wp-plugin-desc">${esc(data.shortDescription)}</p>
-                <div class="wp-meta-grid">${metaHtml}</div>
-            </div>
-            <div class="wp-tabs">
+
+                <!-- Tab bar -->
                 <nav class="wp-tab-nav">
                     ${tabs.map((t, i) => `
                         <button class="wp-tab-btn ${i === 0 ? 'is-active' : ''}" data-tab="${t.id}">${t.label}</button>
                     `).join("")}
+                    <a href="#" class="wp-support-link">Support</a>
                 </nav>
-                <div class="wp-tab-panels">
-                    ${tabs.map((t, i) => `
-                        <div class="wp-tab-panel ${i === 0 ? 'is-active' : ''}" data-panel="${t.id}">
-                            <div class="wp-prose">${t.content}</div>
+
+                <!-- Two-column body -->
+                <div class="wp-body">
+                    <div class="wp-main">
+                        <div class="wp-tab-panels">
+                            ${tabs.map((t, i) => `
+                                <div class="wp-tab-panel ${i === 0 ? 'is-active' : ''}" data-panel="${t.id}">
+                                    <h2 class="wp-content-title">Description</h2>
+                                    <div class="wp-prose">${t.content}</div>
+                                </div>
+                            `).join("")}
                         </div>
-                    `).join("")}
+                    </div>
+                    <aside class="wp-sidebar">
+                        <table class="wp-sidebar-table">
+                            <tbody>
+                                ${sidebarMetaHtml}
+                            </tbody>
+                        </table>
+                        ${tagsHtml ? `<div class="wp-sidebar-block">
+                            <h3 class="wp-sidebar-heading">Tags</h3>
+                            <div class="wp-tags">${tagsHtml}</div>
+                        </div>` : ""}
+                        <div class="wp-sidebar-block">
+                            <h3 class="wp-sidebar-heading"> Ratings </h3>
+                            <p class="wp-rating-text">No reviews have been submitted yet.</p>
+                            <p class="wp-rating-link"><a href="#">Your review</a></p>
+                        </div>
+                        <div class="wp-sidebar-block">
+                            <h3 class="wp-sidebar-heading"> Support </h3>
+                            <p class="wp-support-text">Got something to say? Need help?</p>
+                            <p class="wp-support-link-block"><a href="#">View support forum</a></p>
+                        </div>
+                    </aside>
                 </div>
             </div>
         `;
