@@ -57,9 +57,28 @@ The preview will update instantly."></textarea>
         <main class="preview-panel" id="preview-panel">
             <div class="preview-header">
                 <h2 class="preview-title">Preview</h2>
-                <div class="preview-badge" id="preview-status">
-                    <span class="status-dot"></span>
-                    <span class="status-text">Enter content to preview</span>
+                <div class="preview-actions">
+                    <div class="preview-badge" id="preview-status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Enter content to preview</span>
+                    </div>
+                    <button class="maximize-btn" id="maximize-btn" title="Maximize preview">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-expand">
+                            <polyline points="15 3 21 3 21 9"/>
+                            <polyline points="9 21 3 21 3 15"/>
+                            <line x1="21" y1="3" x2="14" y2="10"/>
+                            <line x1="3" y1="21" x2="10" y2="14"/>
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-minimize"
+                             style="display:none">
+                            <polyline points="4 14 10 14 10 20"/>
+                            <polyline points="20 10 14 10 14 4"/>
+                            <line x1="14" y1="10" x2="21" y2="3"/>
+                            <line x1="3" y1="21" x2="10" y2="14"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="preview-content" id="preview-content">
@@ -241,6 +260,12 @@ The preview will update instantly."></textarea>
         letter-spacing: -0.01em;
     }
 
+    .preview-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
     .preview-badge {
         display: inline-flex;
         align-items: center;
@@ -251,6 +276,27 @@ The preview will update instantly."></textarea>
         font-size: 0.75rem;
         font-weight: 600;
         color: var(--text-dim);
+    }
+
+    .maximize-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .maximize-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--icon-bg);
     }
 
     .preview-badge.has-content {
@@ -307,6 +353,25 @@ The preview will update instantly."></textarea>
     .preview-hint {
         font-size: 0.85rem !important;
         opacity: 0.6;
+    }
+
+    /* --- Maximized state --- */
+    .app-layout.maximized .editor-panel,
+    .app-layout.maximized .resize-handle {
+        display: none;
+    }
+
+    .app-layout.maximized .preview-panel {
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .app-layout.maximized .preview-content {
+        padding: 1.5rem 2rem;
+        max-width: 1160px;
+        margin: 0 auto;
+        width: 100%;
     }
 
     /* --- Mobile --- */
@@ -1133,5 +1198,42 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             onDragMove(e.touches[0].clientX);
         }, {passive: true});
         document.addEventListener("touchend", onDragEnd);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Maximize / minimize preview
+    // ---------------------------------------------------------------------------
+    const maximizeBtn = document.getElementById("maximize-btn");
+    if (maximizeBtn && appLayout) {
+        maximizeBtn.addEventListener("click", () => {
+            const isMaximized = appLayout.classList.toggle("maximized");
+            const iconExpand = maximizeBtn.querySelector(".icon-expand");
+            const iconMinimize = maximizeBtn.querySelector(".icon-minimize");
+
+            if (isMaximized) {
+                maximizeBtn.title = "Restore preview";
+                if (iconExpand) iconExpand.style.display = "none";
+                if (iconMinimize) iconMinimize.style.display = "block";
+            } else {
+                maximizeBtn.title = "Maximize preview";
+                if (iconExpand) iconExpand.style.display = "block";
+                if (iconMinimize) iconMinimize.style.display = "none";
+                // Restore saved width or default 50%
+                try {
+                    const saved = localStorage.getItem("wpreadme-split-width");
+                    if (saved) {
+                        const w = parseInt(saved, 10);
+                        if (w >= 200 && w <= window.innerWidth - 200) {
+                            editorPanel.style.width = w + "px";
+                        }
+                    } else {
+                        editorPanel.style.width = "50%";
+                    }
+                } catch (e) {
+                    editorPanel.style.width = "50%";
+                }
+                editorPanel.style.flexShrink = "0";
+            }
+        });
     }
 </script>
