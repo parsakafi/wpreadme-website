@@ -63,16 +63,13 @@ The preview will update instantly."></textarea>
                         <span class="status-text">Enter content to preview</span>
                     </div>
                     <button class="maximize-btn" id="maximize-btn" title="Maximize preview">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-expand">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-expand">
                             <polyline points="15 3 21 3 21 9"/>
                             <polyline points="9 21 3 21 3 15"/>
                             <line x1="21" y1="3" x2="14" y2="10"/>
                             <line x1="3" y1="21" x2="10" y2="14"/>
                         </svg>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-minimize"
-                             style="display:none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-minimize" style="display:none">
                             <polyline points="4 14 10 14 10 20"/>
                             <polyline points="20 10 14 10 14 4"/>
                             <line x1="14" y1="10" x2="21" y2="3"/>
@@ -214,7 +211,7 @@ The preview will update instantly."></textarea>
     }
 
     .resize-handle:hover,
-    .resize-handle.dragging {
+    .resize-handle.drag {
         background: var(--primary);
     }
 
@@ -228,7 +225,7 @@ The preview will update instantly."></textarea>
     }
 
     .resize-handle:hover .resize-dots,
-    .resize-handle.dragging .resize-dots {
+    .resize-handle.drag .resize-dots {
         opacity: 1;
     }
 
@@ -278,27 +275,6 @@ The preview will update instantly."></textarea>
         color: var(--text-dim);
     }
 
-    .maximize-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: transparent;
-        color: var(--text-muted);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        flex-shrink: 0;
-    }
-
-    .maximize-btn:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-        background: var(--icon-bg);
-    }
-
     .preview-badge.has-content {
         color: var(--success);
     }
@@ -326,6 +302,27 @@ The preview will update instantly."></textarea>
         100% {
             box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
         }
+    }
+
+    .maximize-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .maximize-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--icon-bg);
     }
 
     .preview-content {
@@ -410,23 +407,6 @@ The preview will update instantly."></textarea>
 <script>
     // @ts-nocheck, client-side only
     import {parseReadme, renderContent, type ReadmeData} from "../lib/readme-parser";
-
-    // ---------------------------------------------------------------------------
-    // DOM refs
-    // ---------------------------------------------------------------------------
-    const textarea = document.getElementById("readme-input");
-    const previewContent = document.getElementById("preview-content");
-    const previewEmpty = document.getElementById("preview-empty");
-    const previewStatus = document.getElementById("preview-status");
-    const statusText = previewStatus?.querySelector(".status-text");
-    const charCount = document.getElementById("char-count");
-    const fileUpload = document.getElementById("file-upload");
-    const loadExample = document.getElementById("load-example");
-    const clearBtn = document.getElementById("clear-editor");
-
-    if (!textarea || !previewContent || !previewEmpty) {
-        throw new Error("Missing DOM elements");
-    }
 
     // ---------------------------------------------------------------------------
     // Example readme.txt content
@@ -523,53 +503,19 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
 * Basic settings panel`;
 
     // ---------------------------------------------------------------------------
-    // Parse & render
+    // Shared functions (defined outside init so they survive page transitions)
     // ---------------------------------------------------------------------------
-    let debounceTimer: ReturnType<typeof setTimeout>;
+    let debounceTimer: string | number | NodeJS.Timeout | undefined;
 
-    function updatePreview() {
-        const raw = textarea.value.trim();
-        if (!raw) {
-            previewEmpty.style.display = "flex";
-            // Remove rendered content but keep the empty state
-            const rendered = previewContent.querySelectorAll(".readme-rendered");
-            rendered.forEach((el) => el.remove());
-            previewStatus.classList.remove("has-content");
-            if (statusText) statusText.textContent = "Enter content to preview";
-            charCount.textContent = "0 characters";
-            return;
-        }
-
-        previewEmpty.style.display = "none";
-        // Remove previous rendered content
-        const prevRendered = previewContent.querySelectorAll(".readme-rendered");
-        prevRendered.forEach((el) => el.remove());
-
-        try {
-            const data = parseReadme(raw);
-            const rendered = document.createElement("div");
-            rendered.className = "readme-rendered";
-            rendered.innerHTML = buildPreviewHtml(data);
-            previewContent.appendChild(rendered);
-
-            previewStatus.classList.add("has-content");
-            if (statusText) statusText.textContent = data.name || "Preview active";
-        } catch (err) {
-            console.error("Parse error:", err);
-            const errDiv = document.createElement("div");
-            errDiv.className = "readme-rendered readme-error";
-            errDiv.innerHTML = `<p style="color: var(--text-dim); text-align: center; padding: 2rem;">Could not parse the readme.txt content. Please check the format and try again.</p>`;
-            previewContent.appendChild(errDiv);
-            previewStatus.classList.remove("has-content");
-            if (statusText) statusText.textContent = "Parse error";
-        }
-
-        charCount.textContent = `${textarea.value.length.toLocaleString()} characters`;
+    function esc(s) {
+        if (!s) return "";
+        const div = document.createElement("div");
+        div.textContent = s;
+        return div.innerHTML;
     }
 
-    function buildPreviewHtml(data: ReadmeData) {
-        // --- Parse headers ---
-        const metaMap: Record<string, string> = {};
+    function buildPreviewHtml(data) {
+        const metaMap = {};
         for (const [k, v] of Object.entries(data.headers)) {
             if (typeof v === "string") {
                 metaMap[k.toLowerCase()] = v;
@@ -582,7 +528,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         const author = contributors.split(",")[0]?.trim() || "Unknown";
         const pluginName = data.name || "Plugin";
 
-        // --- Sidebar meta rows (matching WordPress.org layout) ---
+        // --- Sidebar meta rows ---
         const sidebarMeta = [];
         if (metaMap["stable tag"]) sidebarMeta.push({label: "Version", value: metaMap["stable tag"]});
         sidebarMeta.push({label: "Last updated", value: "just now"});
@@ -606,27 +552,27 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </tr>`
         ).join("");
 
-        const tagsHtml = tags ? tags.split(",").map((t: string) =>
+        const tagsHtml = tags ? tags.split(",").map((t) =>
             `<span class="wp-tag">${esc(t.trim())}</span>`
         ).join("") : "";
 
         // --- Extract sections ---
-        const descSection = data.sections.find((s: { title: string; }) => s.title.toLowerCase() === "description");
+        const descSection = data.sections.find((s) => s.title.toLowerCase() === "description");
         const descHtml = descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`;
 
-        const installSection = data.sections.find((s: { title: string; }) => s.title.toLowerCase() === "installation");
+        const installSection = data.sections.find((s) => s.title.toLowerCase() === "installation");
         const installHtml = installSection ? renderContent(installSection.content) : "<p class=\"wp-empty-msg\">No installation instructions provided.</p>";
 
-        const changelogSection = data.sections.find((s: { title: string; }) => s.title.toLowerCase() === "changelog");
+        const changelogSection = data.sections.find((s) => s.title.toLowerCase() === "changelog");
         const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
 
-        const otherSections = data.sections.filter((s: { title: string; }) => {
+        const otherSections = data.sections.filter((s) => {
             const t = s.title.toLowerCase();
             return t !== "description" && t !== "installation" &&
                 t !== "frequently asked questions" && t !== "screenshots" &&
                 t !== "changelog";
         });
-        const otherHtml = otherSections.map((s: { title: string; content: string; }) =>
+        const otherHtml = otherSections.map((s) =>
             `<div class="wp-section-block">
                 <h2 class="wp-block-title">${esc(s.title)}</h2>
                 <div class="wp-prose">${renderContent(s.content)}</div>
@@ -638,7 +584,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             ? `<div class="wp-section-block">
                 <h2 class="wp-block-title">Screenshots</h2>
                 <div class="wp-screenshots">
-                    ${data.screenshots.map((ss: { number: string; caption: string; }) =>
+                    ${data.screenshots.map((ss) =>
                 `<div class="wp-screenshot">
                             <div class="wp-screenshot-img">
                                 <span class="wp-screenshot-num">${esc(ss.number)}</span>
@@ -683,9 +629,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </div>`
             : "";
 
-        // =====================================================================
-        // Tab 1: Details (Description + Screenshots + FAQ + Contributors)
-        // =====================================================================
+        // Tab 1: Details
         const detailsContent = [
             `<div class="wp-section-block"><h2 class="wp-block-title">Description</h2><div class="wp-prose">${descHtml}</div></div>`,
             ssHtml,
@@ -694,193 +638,30 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             otherHtml,
         ].filter(Boolean).join("");
 
-        // =====================================================================
-        // Tab 2: Reviews (example preview)
-        // =====================================================================
+        // Tab 2: Reviews
         const allReviews = [
-            {
-                user: "sarahj",
-                stars: 5,
-                title: "Very useful and easy to set up",
-                date: "August 15, 2026",
-                replies: 1,
-                color: "blue",
-                text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!"
-            },
-            {
-                user: "mike_dev",
-                stars: 5,
-                title: "Excellent developer support",
-                date: "August 3, 2026",
-                replies: 1,
-                color: "green",
-                text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support."
-            },
-            {
-                user: "alexweb",
-                stars: 4,
-                title: "Good plugin, minor UI improvements needed",
-                date: "July 28, 2026",
-                replies: 1,
-                color: "orange",
-                text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates."
-            },
-            {
-                user: "jenny_l",
-                stars: 5,
-                title: "Must-have for any WordPress site",
-                date: "July 20, 2026",
-                replies: 1,
-                color: "blue",
-                text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it."
-            },
-            {
-                user: "webcraft",
-                stars: 5,
-                title: "Clean code, great performance",
-                date: "July 12, 2026",
-                replies: 1,
-                color: "green",
-                text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem."
-            },
-            {
-                user: "theme_fan",
-                stars: 5,
-                title: "Best plugin in its category",
-                date: "June 30, 2026",
-                replies: 1,
-                color: "blue",
-                text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed."
-            },
-            {
-                user: "wp_beginner",
-                stars: 5,
-                title: "Perfect for beginners and pros alike",
-                date: "June 22, 2026",
-                replies: 1,
-                color: "green",
-                text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now."
-            },
-            {
-                user: "code_master",
-                stars: 4,
-                title: "Solid implementation, a few feature requests",
-                date: "June 15, 2026",
-                replies: 1,
-                color: "orange",
-                text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature."
-            },
-            {
-                user: "shop_owner",
-                stars: 5,
-                title: "Increased my conversions significantly",
-                date: "June 8, 2026",
-                replies: 1,
-                color: "blue",
-                text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now."
-            },
-            {
-                user: "design_pro",
-                stars: 5,
-                title: "Beautiful integration with any theme",
-                date: "May 28, 2026",
-                replies: 1,
-                color: "green",
-                text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one."
-            },
-            {
-                user: "dev_ops",
-                stars: 5,
-                title: "Lightweight and well documented",
-                date: "May 20, 2026",
-                replies: 1,
-                color: "blue",
-                text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended."
-            },
-            {
-                user: "small_biz",
-                stars: 5,
-                title: "Exactly what I needed",
-                date: "May 15, 2026",
-                replies: 1,
-                color: "green",
-                text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!"
-            },
-            {
-                user: "freelancer_joe",
-                stars: 4,
-                title: "Great value for a free plugin",
-                date: "May 8, 2026",
-                replies: 1,
-                color: "orange",
-                text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy."
-            },
-            {
-                user: "blog_writer",
-                stars: 5,
-                title: "Made my blog look professional",
-                date: "April 30, 2026",
-                replies: 1,
-                color: "blue",
-                text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel."
-            },
-            {
-                user: "ecommerce_pro",
-                stars: 4,
-                title: "Essential for any WooCommerce store",
-                date: "April 22, 2026",
-                replies: 1,
-                color: "green",
-                text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it."
-            },
-            {
-                user: "plugin_reviewer",
-                stars: 5,
-                title: "Top tier quality and support",
-                date: "April 15, 2026",
-                replies: 1,
-                color: "blue",
-                text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features."
-            },
-            {
-                user: "agency_lead",
-                stars: 5,
-                title: "We deploy this on all client sites",
-                date: "April 8, 2026",
-                replies: 1,
-                color: "green",
-                text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue."
-            },
-            {
-                user: "site_builder",
-                stars: 4,
-                title: "Very capable, needs more hooks",
-                date: "March 30, 2026",
-                replies: 1,
-                color: "orange",
-                text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases."
-            },
-            {
-                user: "store_manager",
-                stars: 5,
-                title: "My customers love the new features",
-                date: "March 22, 2026",
-                replies: 1,
-                color: "blue",
-                text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store."
-            },
-            {
-                user: "wp_enthusiast",
-                stars: 5,
-                title: "Outstanding plugin, five stars well earned",
-                date: "March 15, 2026",
-                replies: 1,
-                color: "green",
-                text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used."
-            },
+            { user: "sarahj", stars: 5, title: "Very useful and easy to set up", date: "August 15, 2026", replies: 1, color: "blue", text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!" },
+            { user: "mike_dev", stars: 5, title: "Excellent developer support", date: "August 3, 2026", replies: 1, color: "green", text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support." },
+            { user: "alexweb", stars: 4, title: "Good plugin, minor UI improvements needed", date: "July 28, 2026", replies: 1, color: "orange", text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates." },
+            { user: "jenny_l", stars: 5, title: "Must-have for any WordPress site", date: "July 20, 2026", replies: 1, color: "blue", text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it." },
+            { user: "webcraft", stars: 5, title: "Clean code, great performance", date: "July 12, 2026", replies: 1, color: "green", text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem." },
+            { user: "theme_fan", stars: 5, title: "Best plugin in its category", date: "June 30, 2026", replies: 1, color: "blue", text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed." },
+            { user: "wp_beginner", stars: 5, title: "Perfect for beginners and pros alike", date: "June 22, 2026", replies: 1, color: "green", text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now." },
+            { user: "code_master", stars: 4, title: "Solid implementation, a few feature requests", date: "June 15, 2026", replies: 1, color: "orange", text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature." },
+            { user: "shop_owner", stars: 5, title: "Increased my conversions significantly", date: "June 8, 2026", replies: 1, color: "blue", text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now." },
+            { user: "design_pro", stars: 5, title: "Beautiful integration with any theme", date: "May 28, 2026", replies: 1, color: "green", text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one." },
+            { user: "dev_ops", stars: 5, title: "Lightweight and well documented", date: "May 20, 2026", replies: 1, color: "blue", text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended." },
+            { user: "small_biz", stars: 5, title: "Exactly what I needed", date: "May 15, 2026", replies: 1, color: "green", text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!" },
+            { user: "freelancer_joe", stars: 4, title: "Great value for a free plugin", date: "May 8, 2026", replies: 1, color: "orange", text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy." },
+            { user: "blog_writer", stars: 5, title: "Made my blog look professional", date: "April 30, 2026", replies: 1, color: "blue", text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel." },
+            { user: "ecommerce_pro", stars: 4, title: "Essential for any WooCommerce store", date: "April 22, 2026", replies: 1, color: "green", text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it." },
+            { user: "plugin_reviewer", stars: 5, title: "Top tier quality and support", date: "April 15, 2026", replies: 1, color: "blue", text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features." },
+            { user: "agency_lead", stars: 5, title: "We deploy this on all client sites", date: "April 8, 2026", replies: 1, color: "green", text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue." },
+            { user: "site_builder", stars: 4, title: "Very capable, needs more hooks", date: "March 30, 2026", replies: 1, color: "orange", text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases." },
+            { user: "store_manager", stars: 5, title: "My customers love the new features", date: "March 22, 2026", replies: 1, color: "blue", text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store." },
+            { user: "wp_enthusiast", stars: 5, title: "Outstanding plugin, five stars well earned", date: "March 15, 2026", replies: 1, color: "green", text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used." },
         ];
 
-        // Shuffle and pick 5 random reviews
         const shuffled = [...allReviews].sort(() => Math.random() - 0.5);
         const selectedReviews = shuffled.slice(0, 5);
 
@@ -902,9 +683,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </div>
         `;
 
-        // =====================================================================
         // Tab 3: Installation
-        // =====================================================================
         const installationContent = `
             <div class="wp-section-block">
                 <h2 class="wp-block-title">Installation</h2>
@@ -912,19 +691,17 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </div>
         `;
 
-        // =====================================================================
-        // Tab 4: Development (Contributors + Changelog)
-        // =====================================================================
+        // Tab 4: Development
         const devContent = `
             <div class="wp-section-block">
                 <h2 class="wp-block-title">Contributors &amp; Developers</h2>
-                <p class="wp-dev-text">\u201c${esc(pluginName)}\u201d has been translated into ${Math.max(contributorList.length * 3, 1)} locales. Thank you to <a href=\"#\">the translators</a> for their contributions.</p>
-                <p class="wp-dev-text"><a href=\"#\">Translate \u201c${esc(pluginName)}\u201d into your language.</a></p>
+                <p class="wp-dev-text">\u201c${esc(pluginName)}\u201d has been translated into ${Math.max(contributorList.length * 3, 1)} locales. Thank you to <a href="#">the translators</a> for their contributions.</p>
+                <p class="wp-dev-text"><a href="#">Translate \u201c${esc(pluginName)}\u201d into your language.</a></p>
             </div>
             <div class="wp-section-block">
                 <h3 class="wp-dev-subtitle">Interested in development?</h3>
-                <p class="wp-dev-text"><a href=\"#\">Browse the code</a>, check out the <a href=\"#\">SVN repository</a>, or subscribe to the <a href=\"#\">development log</a> by <a href=\"#\">RSS</a>.</p>
-                <p class="wp-dev-text">You can also subscribe to emails for each plugin commit by <a href=\"#\">clicking here</a>.</p>
+                <p class="wp-dev-text"><a href="#">Browse the code</a>, check out the <a href="#">SVN repository</a>, or subscribe to the <a href="#">development log</a> by <a href="#">RSS</a>.</p>
+                <p class="wp-dev-text">You can also subscribe to emails for each plugin commit by <a href="#">clicking here</a>.</p>
             </div>
             ${changelogHtml ? `
             <div class="wp-section-block">
@@ -933,7 +710,6 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </div>` : ""}
         `;
 
-        // --- Tab definitions ---
         const tabs = [
             {id: "details", label: "Details", content: detailsContent},
             {id: "reviews", label: "Reviews", content: reviewsHtml},
@@ -941,17 +717,13 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             {id: "development", label: "Development", content: devContent},
         ];
 
-        // =====================================================================
-        // Sidebar (shared across all tabs)
-        // =====================================================================
-
-        // Generate random rating data
+        // --- Sidebar ---
         const ratingCounts = [
-            Math.floor(Math.random() * 4000) + 500,   // 5 stars
-            Math.floor(Math.random() * 300) + 50,     // 4 stars
-            Math.floor(Math.random() * 150) + 20,     // 3 stars
-            Math.floor(Math.random() * 120) + 15,     // 2 stars
-            Math.floor(Math.random() * 500) + 30,     // 1 star
+            Math.floor(Math.random() * 4000) + 500,
+            Math.floor(Math.random() * 300) + 50,
+            Math.floor(Math.random() * 150) + 20,
+            Math.floor(Math.random() * 120) + 15,
+            Math.floor(Math.random() * 500) + 30,
         ];
         const totalRatings = ratingCounts.reduce((a, b) => a + b, 0);
         const weightedSum = ratingCounts.reduce((sum, count, i) => sum + count * (5 - i), 0);
@@ -1003,9 +775,6 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </div>
         `;
 
-        // =====================================================================
-        // Full page
-        // =====================================================================
         return `
             <div class="wp-plugin-page">
                 <div class="wp-plugin-head">
@@ -1024,6 +793,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                     </div>
                 </div>
                 <nav class="wp-tab-nav">
+                   <hr>
                     ${tabs.map((t, i) => `<button class="wp-tab-btn ${i === 0 ? 'is-active' : ''}" data-tab="${t.id}">${t.label}</button>`).join("")}
                     <a href="#" class="wp-support-link">Support</a>
                 </nav>
@@ -1043,197 +813,285 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         `;
     }
 
-    function esc(s: string): string {
-        if (!s) return "";
-        const div = document.createElement("div");
-        div.textContent = s;
-        return div.innerHTML;
+    // ---------------------------------------------------------------------------
+    // Update preview function
+    // ---------------------------------------------------------------------------
+    function updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount) {
+        const raw = textarea.value.trim();
+        if (!raw) {
+            previewEmpty.style.display = "flex";
+            const rendered = previewContent.querySelectorAll(".readme-rendered");
+            rendered.forEach((el) => el.remove());
+            previewStatus.classList.remove("has-content");
+            if (statusText) statusText.textContent = "Enter content to preview";
+            charCount.textContent = "0 characters";
+            return;
+        }
+
+        previewEmpty.style.display = "none";
+        const prevRendered = previewContent.querySelectorAll(".readme-rendered");
+        prevRendered.forEach((el) => el.remove());
+
+        try {
+            const data = parseReadme(raw);
+            const rendered = document.createElement("div");
+            rendered.className = "readme-rendered";
+            rendered.innerHTML = buildPreviewHtml(data);
+            previewContent.appendChild(rendered);
+
+            previewStatus.classList.add("has-content");
+            if (statusText) statusText.textContent = data.name || "Preview active";
+        } catch (err) {
+            console.error("Parse error:", err);
+            const errDiv = document.createElement("div");
+            errDiv.className = "readme-rendered readme-error";
+            errDiv.innerHTML = `<p style="color: var(--text-dim); text-align: center; padding: 2rem;">Could not parse the readme.txt content. Please check the format and try again.</p>`;
+            previewContent.appendChild(errDiv);
+            previewStatus.classList.remove("has-content");
+            if (statusText) statusText.textContent = "Parse error";
+        }
+
+        charCount.textContent = `${textarea.value.length.toLocaleString()} characters`;
     }
 
     // ---------------------------------------------------------------------------
-    // Tab switching (event delegation on document)
+    // Global listeners (registered once, use delegation)
     // ---------------------------------------------------------------------------
-    document.addEventListener("click", (e) => {
-        const target = e.target as Element;
-        const btn = target.closest(".wp-tab-btn") as HTMLElement | null;
-        if (!btn) return;
-        const tab = btn.getAttribute("data-tab");
-        if (!tab) return;
+    // Use window-level flag so it survives View Transitions
+    if (!window.__wpGlobalListenersRegistered) {
+        window.__wpGlobalListenersRegistered = false;
+    }
 
-        e.preventDefault();
+    function registerGlobalListeners() {
+        if (window.__wpGlobalListenersRegistered) return;
+        window.__wpGlobalListenersRegistered = true;
 
-        // Find the parent rendered container
-        const container = btn.closest(".readme-rendered") || btn.closest(".wp-plugin-page") || previewContent;
-        if (!container) return;
+        // Global click delegation for tabs and maximize button
+        document.addEventListener("click", (e) => {
+            const target = e.target;
 
-        // Deactivate all buttons and panels
-        container.querySelectorAll(".wp-tab-btn").forEach(b => b.classList.remove("is-active"));
-        container.querySelectorAll(".wp-tab-panel").forEach(p => p.classList.remove("is-active"));
+            // Maximize button
+            const maxBtn = target.closest("#maximize-btn");
+            if (maxBtn) {
+                e.preventDefault();
+                const app = document.getElementById("app-layout");
+                const edPanel = document.getElementById("editor-panel");
+                if (!app || !edPanel) return;
 
-        // Activate the clicked one
-        btn.classList.add("is-active");
-        const panel = container.querySelector(`[data-panel="${tab}"]`);
-        if (panel) panel.classList.add("is-active");
-    });
+                const isMaximized = app.classList.toggle("maximized");
+                const iconExpand = maxBtn.querySelector(".icon-expand");
+                const iconMinimize = maxBtn.querySelector(".icon-minimize");
 
-    // ---------------------------------------------------------------------------
-    // Event listeners
-    // ---------------------------------------------------------------------------
-    textarea.addEventListener("input", () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(updatePreview, 150);
-    });
-
-    // File upload
-    fileUpload.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-            textarea.value = reader.result;
-            updatePreview();
-        };
-        reader.readAsText(file);
-        // Reset input so re-uploading the same file triggers change
-        e.target.value = "";
-    });
-
-    // Load example
-    loadExample.addEventListener("click", () => {
-        textarea.value = EXAMPLE_README;
-        updatePreview();
-        textarea.focus();
-    });
-
-    // Clear
-    clearBtn.addEventListener("click", () => {
-        textarea.value = "";
-        updatePreview();
-        textarea.focus();
-    });
-
-    // Handle paste events to trigger immediate update
-    textarea.addEventListener("paste", () => {
-        setTimeout(updatePreview, 50);
-    });
-
-    // ---------------------------------------------------------------------------
-    // Resizable split pane
-    // ---------------------------------------------------------------------------
-    const handle = document.getElementById("resize-handle");
-    const editorPanel = document.getElementById("editor-panel");
-    const previewPanel = document.getElementById("preview-panel");
-    const appLayout = document.getElementById("app-layout");
-
-    if (handle && editorPanel && previewPanel && appLayout) {
-        const STORAGE_KEY = "wpreadme-split-width";
-        let dragging = false;
-        let startX = 0;
-        let startWidth = 0;
-
-        // Restore saved width on load
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const w = parseInt(saved, 10);
-                if (w >= 200 && w <= window.innerWidth - 200) {
-                    editorPanel.style.width = w + "px";
-                    editorPanel.style.flexShrink = "0";
+                if (isMaximized) {
+                    maxBtn.title = "Restore preview";
+                    if (iconExpand) iconExpand.style.display = "none";
+                    if (iconMinimize) iconMinimize.style.display = "block";
+                } else {
+                    maxBtn.title = "Maximize preview";
+                    if (iconExpand) iconExpand.style.display = "block";
+                    if (iconMinimize) iconMinimize.style.display = "none";
+                    try {
+                        const saved = localStorage.getItem("wpreadme-split-width");
+                        if (saved) {
+                            const w = parseInt(saved, 10);
+                            if (w >= 200 && w <= window.innerWidth - 200) {
+                                edPanel.style.width = w + "px";
+                            }
+                        } else {
+                            edPanel.style.width = "50%";
+                        }
+                    } catch (err) {
+                        edPanel.style.width = "50%";
+                    }
+                    edPanel.style.flexShrink = "0";
                 }
+                return;
             }
-        } catch (e) { /* localStorage unavailable */
-        }
 
-        function saveWidth() {
-            try {
-                const w = Math.round(editorPanel.getBoundingClientRect().width);
-                localStorage.setItem(STORAGE_KEY, String(w));
-            } catch (e) { /* localStorage unavailable */
-            }
-        }
+            // Tab switching
+            const btn = target.closest(".wp-tab-btn");
+            if (!btn) return;
+            const tab = btn.getAttribute("data-tab");
+            if (!tab) return;
 
-        function onDragStart(clientX) {
-            dragging = true;
-            startX = clientX;
-            startWidth = editorPanel.getBoundingClientRect().width;
-            handle.classList.add("drag");
-            document.body.style.cursor = "col-resize";
-            document.body.style.userSelect = "none";
-        }
-
-        function onDragMove(clientX) {
-            if (!dragging) return;
-            const dx = clientX - startX;
-            const layoutWidth = appLayout.getBoundingClientRect().width;
-            const handleWidth = handle.getBoundingClientRect().width;
-            const min = 200;
-            const max = layoutWidth - 200 - handleWidth;
-            const newWidth = Math.min(max, Math.max(min, startWidth + dx));
-            editorPanel.style.width = newWidth + "px";
-            editorPanel.style.flexShrink = "0";
-        }
-
-        function onDragEnd() {
-            if (!dragging) return;
-            dragging = false;
-            handle.classList.remove("drag");
-            document.body.style.cursor = "";
-            document.body.style.userSelect = "";
-            saveWidth();
-        }
-
-        // Mouse events
-        handle.addEventListener("mousedown", (e) => {
             e.preventDefault();
-            onDragStart(e.clientX);
-        });
-        document.addEventListener("mousemove", (e) => onDragMove(e.clientX));
-        document.addEventListener("mouseup", onDragEnd);
 
-        // Touch events
-        handle.addEventListener("touchstart", (e) => {
-            onDragStart(e.touches[0].clientX);
-        }, {passive: true});
+            const container = btn.closest(".readme-rendered") || btn.closest(".wp-plugin-page") || document.getElementById("preview-content");
+            if (!container) return;
+
+            container.querySelectorAll(".wp-tab-btn").forEach(b => b.classList.remove("is-active"));
+            container.querySelectorAll(".wp-tab-panel").forEach(p => p.classList.remove("is-active"));
+
+            btn.classList.add("is-active");
+            const panel = container.querySelector(`[data-panel="${tab}"]`);
+            if (panel) panel.classList.add("is-active");
+        });
+
+        // Global mouse/touch for resize (registered once)
+        document.addEventListener("mousemove", (e) => {
+            if (!currentDrag) return;
+            onDragMove(e.clientX);
+        });
+        document.addEventListener("mouseup", () => {
+            if (!currentDrag) return;
+            onDragEnd();
+        });
         document.addEventListener("touchmove", (e) => {
+            if (!currentDrag) return;
             onDragMove(e.touches[0].clientX);
         }, {passive: true});
-        document.addEventListener("touchend", onDragEnd);
-    }
-
-    // ---------------------------------------------------------------------------
-    // Maximize / minimize preview
-    // ---------------------------------------------------------------------------
-    const maximizeBtn = document.getElementById("maximize-btn");
-    if (maximizeBtn && appLayout) {
-        maximizeBtn.addEventListener("click", () => {
-            const isMaximized = appLayout.classList.toggle("maximized");
-            const iconExpand = maximizeBtn.querySelector(".icon-expand");
-            const iconMinimize = maximizeBtn.querySelector(".icon-minimize");
-
-            if (isMaximized) {
-                maximizeBtn.title = "Restore preview";
-                if (iconExpand) iconExpand.style.display = "none";
-                if (iconMinimize) iconMinimize.style.display = "block";
-            } else {
-                maximizeBtn.title = "Maximize preview";
-                if (iconExpand) iconExpand.style.display = "block";
-                if (iconMinimize) iconMinimize.style.display = "none";
-                // Restore saved width or default 50%
-                try {
-                    const saved = localStorage.getItem("wpreadme-split-width");
-                    if (saved) {
-                        const w = parseInt(saved, 10);
-                        if (w >= 200 && w <= window.innerWidth - 200) {
-                            editorPanel.style.width = w + "px";
-                        }
-                    } else {
-                        editorPanel.style.width = "50%";
-                    }
-                } catch (e) {
-                    editorPanel.style.width = "50%";
-                }
-                editorPanel.style.flexShrink = "0";
-            }
+        document.addEventListener("touchend", () => {
+            if (!currentDrag) return;
+            onDragEnd();
         });
     }
+
+    // ---------------------------------------------------------------------------
+    // Resize state (persists across inits)
+    // ---------------------------------------------------------------------------
+    let currentDrag = null;
+
+    function onDragMove(clientX) {
+        if (!currentDrag) return;
+        const {handle, editorPanel, appLayout, startX, startWidth} = currentDrag;
+        const dx = clientX - startX;
+        const layoutWidth = appLayout.getBoundingClientRect().width;
+        const handleWidth = handle.getBoundingClientRect().width;
+        const min = 200;
+        const max = layoutWidth - 200 - handleWidth;
+        const newWidth = Math.min(max, Math.max(min, startWidth + dx));
+        editorPanel.style.width = newWidth + "px";
+        editorPanel.style.flexShrink = "0";
+    }
+
+    function onDragEnd() {
+        if (!currentDrag) return;
+        const {handle, editorPanel} = currentDrag;
+        currentDrag = null;
+        handle.classList.remove("drag");
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+        try {
+            const w = Math.round(editorPanel.getBoundingClientRect().width);
+            localStorage.setItem("wpreadme-split-width", String(w));
+        } catch (e) { /* localStorage unavailable */ }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Init: called on initial load and after every View Transition
+    // ---------------------------------------------------------------------------
+    function initPage() {
+        const textarea = document.getElementById("readme-input");
+        const previewContent = document.getElementById("preview-content");
+        const previewEmpty = document.getElementById("preview-empty");
+        const previewStatus = document.getElementById("preview-status");
+        const statusText = previewStatus?.querySelector(".status-text");
+        const charCount = document.getElementById("char-count");
+        const fileUpload = document.getElementById("file-upload");
+        const loadExample = document.getElementById("load-example");
+        const clearBtn = document.getElementById("clear-editor");
+        const handle = document.getElementById("resize-handle");
+        const editorPanel = document.getElementById("editor-panel");
+        const appLayout = document.getElementById("app-layout");
+        if (!textarea || !previewContent || !previewEmpty) return;
+
+        // Bind textarea input
+        textarea.addEventListener("input", () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+            }, 150);
+        });
+
+        textarea.addEventListener("paste", () => {
+            setTimeout(() => {
+                updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+            }, 50);
+        });
+
+        // File upload
+        fileUpload?.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                textarea.value = reader.result;
+                updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+            };
+            reader.readAsText(file);
+            e.target.value = "";
+        });
+
+        // Load example
+        loadExample?.addEventListener("click", () => {
+            textarea.value = EXAMPLE_README;
+            updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+            textarea.focus();
+        });
+
+        // Clear
+        clearBtn?.addEventListener("click", () => {
+            textarea.value = "";
+            updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+            textarea.focus();
+        });
+
+        // Resize handle
+        if (handle && editorPanel && appLayout) {
+            // Restore saved width on load
+            try {
+                const saved = localStorage.getItem("wpreadme-split-width");
+                if (saved) {
+                    const w = parseInt(saved, 10);
+                    if (w >= 200 && w <= window.innerWidth - 200) {
+                        editorPanel.style.width = w + "px";
+                        editorPanel.style.flexShrink = "0";
+                    }
+                }
+            } catch (e) { /* localStorage unavailable */ }
+
+            handle.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                currentDrag = {
+                    handle,
+                    editorPanel,
+                    appLayout,
+                    startX: e.clientX,
+                    startWidth: editorPanel.getBoundingClientRect().width,
+                };
+                handle.classList.add("drag");
+                document.body.style.cursor = "col-resize";
+                document.body.style.userSelect = "none";
+            });
+
+            handle.addEventListener("touchstart", (e) => {
+                currentDrag = {
+                    handle,
+                    editorPanel,
+                    appLayout,
+                    startX: e.touches[0].clientX,
+                    startWidth: editorPanel.getBoundingClientRect().width,
+                };
+                handle.classList.add("drag");
+                document.body.style.cursor = "col-resize";
+                document.body.style.userSelect = "none";
+            }, {passive: true});
+        }
+
+    }
+
+    // ---------------------------------------------------------------------------
+    // Bootstrap: run on initial load and after View Transitions
+    // ---------------------------------------------------------------------------
+    registerGlobalListeners();
+
+    // Initial load
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initPage);
+    } else {
+        initPage();
+    }
+
+    // Astro View Transitions: re-init after navigation
+    document.addEventListener("astro:page-load", initPage);
 </script>

@@ -160,11 +160,24 @@
 .wp-tab-nav {
   display: flex;
   align-items: flex-end;
+  flex-wrap: wrap;
   gap: 0;
-  border-bottom: 1px solid #dcdcde;
+  //border-bottom: 1px solid #dcdcde;
   margin-bottom: 0;
   overflow-x: auto;
   padding: 1px 0;
+  position: relative;
+
+  hr {
+    flex-basis: 100%;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #dcdcde;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    z-index: 1;
+  }
 }
 
 .wp-tab-btn {
@@ -193,6 +206,7 @@
     border-color: #dcdcde;
     border-bottom-color: #fff;
     padding-bottom: calc(0.7rem + 1px);
+    z-index: 5;
   }
 }
 
