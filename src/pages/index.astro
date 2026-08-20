@@ -1,0 +1,604 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="WPReadme Preview" description="Preview your WordPress plugin readme.txt file before publishing. A free online tool that renders your readme.txt exactly like WordPress.org." current="home">
+    <div class="app-layout">
+        <!-- Left: Editor -->
+        <aside class="editor-panel">
+            <div class="editor-header">
+                <h2 class="editor-title">readme.txt</h2>
+                <div class="editor-actions">
+                    <label class="upload-btn" for="file-upload" title="Upload readme.txt">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span>Upload</span>
+                    </label>
+                    <input type="file" id="file-upload" accept=".txt,text/plain" hidden>
+                    <button class="example-btn" type="button" id="load-example" title="Load example readme.txt">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span>Example</span>
+                    </button>
+                    <button class="clear-btn" type="button" id="clear-editor" title="Clear editor">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+            <textarea id="readme-input" class="editor-textarea" spellcheck="false" placeholder="Paste your readme.txt content here...
+
+Or click the Upload button to load a file.
+
+The preview will update instantly."></textarea>
+            <div class="editor-footer">
+                <span id="char-count" class="char-count">0 characters</span>
+            </div>
+        </aside>
+
+        <!-- Right: Preview -->
+        <main class="preview-panel">
+            <div class="preview-header">
+                <h2 class="preview-title">Preview</h2>
+                <div class="preview-badge" id="preview-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Enter content to preview</span>
+                </div>
+            </div>
+            <div class="preview-content" id="preview-content">
+                <div class="preview-empty" id="preview-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <p>Your WordPress readme.txt preview will appear here</p>
+                    <p class="preview-hint">Paste content in the editor or upload a file to get started</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</BaseLayout>
+
+<style>
+    .app-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        height: calc(100vh - var(--header-height, 68px));
+        overflow: hidden;
+    }
+
+    /* --- Editor Panel --- */
+    .editor-panel {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+        background: var(--background);
+    }
+
+    .editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--card-bg);
+        flex-shrink: 0;
+    }
+
+    .editor-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-muted);
+        letter-spacing: -0.01em;
+    }
+
+    .editor-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .upload-btn,
+    .example-btn,
+    .clear-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.7rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .upload-btn:hover,
+    .example-btn:hover,
+    .clear-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--icon-bg);
+    }
+
+    .editor-textarea {
+        flex: 1;
+        width: 100%;
+        padding: 1.25rem;
+        border: none;
+        outline: none;
+        resize: none;
+        font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        color: var(--text);
+        background: var(--background);
+        tab-size: 4;
+    }
+
+    .editor-textarea::placeholder {
+        color: var(--text-dim);
+        opacity: 0.6;
+    }
+
+    .editor-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1.25rem;
+        border-top: 1px solid var(--border);
+        background: var(--card-bg);
+        flex-shrink: 0;
+    }
+
+    .char-count {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+    }
+
+    /* --- Preview Panel --- */
+    .preview-panel {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--background);
+    }
+
+    .preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--card-bg);
+        flex-shrink: 0;
+    }
+
+    .preview-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-muted);
+        letter-spacing: -0.01em;
+    }
+
+    .preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        background: var(--icon-bg);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-dim);
+    }
+
+    .preview-badge.has-content {
+        color: var(--success);
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--text-dim);
+    }
+
+    .has-content .status-dot {
+        background: var(--success);
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+
+    .preview-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+
+    .preview-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 300px;
+        text-align: center;
+        color: var(--text-dim);
+    }
+
+    .preview-empty p {
+        margin: 0.5rem 0 0;
+        font-size: 0.95rem;
+    }
+
+    .preview-hint {
+        font-size: 0.85rem !important;
+        opacity: 0.6;
+    }
+
+    /* --- Mobile --- */
+    @media (max-width: 768px) {
+        .app-layout {
+            grid-template-columns: 1fr;
+            grid-template-rows: 40vh 1fr;
+            height: auto;
+            min-height: calc(100vh - var(--header-height, 68px));
+        }
+
+        .editor-panel {
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+        }
+    }
+</style>
+
+<script>
+    // @ts-nocheck, client-side only
+    import {parseReadme, renderContent} from "../lib/readme-parser";
+
+    // ---------------------------------------------------------------------------
+    // DOM refs
+    // ---------------------------------------------------------------------------
+    const textarea = document.getElementById("readme-input");
+    const previewContent = document.getElementById("preview-content");
+    const previewEmpty = document.getElementById("preview-empty");
+    const previewStatus = document.getElementById("preview-status");
+    const statusText = previewStatus?.querySelector(".status-text");
+    const charCount = document.getElementById("char-count");
+    const fileUpload = document.getElementById("file-upload");
+    const loadExample = document.getElementById("load-example");
+    const clearBtn = document.getElementById("clear-editor");
+
+    if (!textarea || !previewContent || !previewEmpty) {
+        throw new Error("Missing DOM elements");
+    }
+
+    // ---------------------------------------------------------------------------
+    // Example readme.txt content
+    // ---------------------------------------------------------------------------
+    const EXAMPLE_README = `=== My Awesome Plugin ===
+Contributors: developername
+Tags: plugin, woocommerce, ecommerce
+Requires at least: 6.0
+Tested up to: 6.6
+Requires PHP: 7.4
+Stable tag: 1.2.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+A lightweight WooCommerce plugin that adds powerful features to your online store.
+
+== Description ==
+
+My Awesome Plugin enhances your WooCommerce store with modern features designed to boost conversions and improve the shopping experience.
+
+= Key Features =
+
+* **Smart Cart**, a slide-in fly cart that keeps the basket always in reach
+* **Product Comparison**, side-by-side comparison for easier buying decisions
+* **Sale Progress Bars**, live progress bars that create urgency during sales
+* **Wishlist Support**, lets customers save products for later
+* **Custom Checkout Fields**, add extra fields to your checkout form
+
+= Why Choose This Plugin? =
+
+This plugin is designed to be lightweight, fast, and easy to configure. No coding skills required. Everything works through the WordPress admin panel.
+
+= Developer Friendly =
+
+Built with modern PHP standards, hooks, and filters so developers can extend it further. Full REST API support included.
+
+== Installation ==
+
+1. Upload the plugin files to \`/wp-content/plugins/my-awesome-plugin/\` directory, or install through the WordPress plugins screen directly.
+2. Activate the plugin through the 'Plugins' screen in WordPress.
+3. Go to Settings > My Awesome Plugin to configure.
+
+= Minimum Requirements =
+
+* PHP 7.4 or greater
+* MySQL 5.6 or greater
+* WordPress 6.0 or greater
+
+== Frequently Asked Questions ==
+
+= Does this work with any WooCommerce theme? =
+
+Yes, My Awesome Plugin is designed to work with any WooCommerce-compatible theme. If you encounter styling issues, please reach out on the support forum.
+
+= Do I need WooCommerce installed? =
+
+Yes, this plugin requires WooCommerce to be installed and active.
+
+= Is this plugin translation ready? =
+
+Yes, My Awesome Plugin is fully translatable. A .pot file is included in the /languages directory.
+
+= Can I disable individual features? =
+
+Yes, each feature can be independently enabled or disabled from the plugin settings page under Settings > My Awesome Plugin.
+
+== Screenshots ==
+
+1. The main settings dashboard
+2. Fly cart in action on the storefront
+3. Product comparison table layout
+4. Sale progress bar on product pages
+5. Wishlist button integrated into product listings
+
+== Changelog ==
+
+= 1.2.0 - 2026-08-15 =
+* Added: Product comparison feature
+* Added: Wishlist support with save for later functionality
+* Improved: Settings page redesign with tabbed navigation
+* Fixed: Cart session handling on multi-site installations
+
+= 1.1.0 - 2026-07-01 =
+* Added: Sale progress bar addon
+* Improved: Fly cart animations and transitions
+* Fixed: PHP 8.2 deprecation warnings
+* Fixed: Checkout field validation on mobile devices
+
+= 1.0.0 - 2026-06-01 =
+* Initial release
+* Fly cart addon
+* Menu cart addon
+* Announcement bar
+* Basic settings panel`;
+
+    // ---------------------------------------------------------------------------
+    // Parse & render
+    // ---------------------------------------------------------------------------
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    function updatePreview() {
+        const raw = textarea.value.trim();
+        if (!raw) {
+            previewEmpty.style.display = "flex";
+            // Remove rendered content but keep the empty state
+            const rendered = previewContent.querySelectorAll(".readme-rendered");
+            rendered.forEach((el) => el.remove());
+            previewStatus.classList.remove("has-content");
+            if (statusText) statusText.textContent = "Enter content to preview";
+            charCount.textContent = "0 characters";
+            return;
+        }
+
+        previewEmpty.style.display = "none";
+        // Remove previous rendered content
+        const prevRendered = previewContent.querySelectorAll(".readme-rendered");
+        prevRendered.forEach((el) => el.remove());
+
+        try {
+            const data = parseReadme(raw);
+            const rendered = document.createElement("div");
+            rendered.className = "readme-rendered";
+            rendered.innerHTML = buildPreviewHtml(data);
+            previewContent.appendChild(rendered);
+
+            previewStatus.classList.add("has-content");
+            if (statusText) statusText.textContent = data.name || "Preview active";
+        } catch (err) {
+            console.error("Parse error:", err);
+            const errDiv = document.createElement("div");
+            errDiv.className = "readme-rendered readme-error";
+            errDiv.innerHTML = `<p style="color: var(--text-dim); text-align: center; padding: 2rem;">Could not parse the readme.txt content. Please check the format and try again.</p>`;
+            previewContent.appendChild(errDiv);
+            previewStatus.classList.remove("has-content");
+            if (statusText) statusText.textContent = "Parse error";
+        }
+
+        charCount.textContent = `${textarea.value.length.toLocaleString()} characters`;
+    }
+
+    function buildPreviewHtml(data) {
+        const metaRows = [];
+
+        // Collect meta items
+        const metaKeys = [
+            "Contributors", "Tags", "Requires at least", "Tested up to",
+            "Requires PHP", "Stable tag", "License", "License URI",
+            "Donate link", "WC requires at least", "WC tested up to"
+        ];
+
+        for (const key of metaKeys) {
+            if (data.headers[key]) {
+                metaRows.push({ label: key, value: data.headers[key] });
+            }
+        }
+
+        // Add any remaining headers not in the standard list
+        for (const [key, val] of Object.entries(data.headers)) {
+            if (!metaKeys.includes(key)) {
+                metaRows.push({ label: key, value: val });
+            }
+        }
+
+        const metaHtml = metaRows.map(m =>
+            `<div class="wp-meta-item">
+                <span class="wp-meta-label">${esc(m.label)}</span>
+                <span class="wp-meta-value">${esc(m.value)}</span>
+            </div>`
+        ).join("");
+
+        // Description section
+        const descSection = data.sections.find(s => s.title.toLowerCase() === "description");
+        const descHtml = descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`;
+
+        // Installation section
+        const installSection = data.sections.find(s => s.title.toLowerCase() === "installation");
+        const installHtml = installSection ? renderContent(installSection.content) : "";
+
+        // FAQ
+        const faqHtml = data.faq.length > 0
+            ? data.faq.map(f =>
+                `<details class="wp-faq-item">
+                    <summary class="wp-faq-q">${esc(f.question)}?</summary>
+                    <div class="wp-faq-a">${renderContent(f.answer)}</div>
+                </details>`
+              ).join("")
+            : "";
+
+        // Screenshots
+        const ssHtml = data.screenshots.length > 0
+            ? `<div class="wp-screenshots">
+                ${data.screenshots.map(ss =>
+                    `<div class="wp-screenshot">
+                        <div class="wp-screenshot-img">
+                            <span class="wp-screenshot-num">${esc(ss.number)}</span>
+                        </div>
+                        <p class="wp-screenshot-caption">${esc(ss.caption)}</p>
+                    </div>`
+                ).join("")}
+               </div>`
+            : "";
+
+        // Changelog section
+        const changelogSection = data.sections.find(s => s.title.toLowerCase() === "changelog");
+        const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
+
+        // Other sections (not description, installation, FAQ, screenshots, changelog)
+        const otherSections = data.sections.filter(s => {
+            const t = s.title.toLowerCase();
+            return t !== "description" && t !== "installation" &&
+                   t !== "frequently asked questions" && t !== "screenshots" &&
+                   t !== "changelog";
+        });
+
+        const otherHtml = otherSections.map(s =>
+            `<section class="wp-section">
+                <h2 class="wp-section-title">${esc(s.title)}</h2>
+                <div class="wp-section-content wp-prose">${renderContent(s.content)}</div>
+            </section>`
+        ).join("");
+
+        // Tabbed sections
+        const tabs = [];
+        if (descHtml) tabs.push({ id: "description", label: "Description", content: descHtml });
+        if (installHtml) tabs.push({ id: "installation", label: "Installation", content: installHtml });
+        if (faqHtml) tabs.push({ id: "faq", label: "FAQ", content: faqHtml });
+        if (ssHtml) tabs.push({ id: "screenshots", label: "Screenshots", content: ssHtml });
+        if (changelogHtml) tabs.push({ id: "changelog", label: "Changelog", content: changelogHtml });
+        if (otherHtml) tabs.push({ id: "other", label: "Other", content: otherHtml });
+
+        return `
+            <div class="wp-plugin-card">
+                <div class="wp-plugin-header">
+                    <h1 class="wp-plugin-name">${esc(data.name)}</h1>
+                </div>
+                <p class="wp-plugin-desc">${esc(data.shortDescription)}</p>
+                <div class="wp-meta-grid">${metaHtml}</div>
+            </div>
+            <div class="wp-tabs">
+                <nav class="wp-tab-nav">
+                    ${tabs.map((t, i) => `
+                        <button class="wp-tab-btn ${i === 0 ? 'is-active' : ''}" data-tab="${t.id}">${t.label}</button>
+                    `).join("")}
+                </nav>
+                <div class="wp-tab-panels">
+                    ${tabs.map((t, i) => `
+                        <div class="wp-tab-panel ${i === 0 ? 'is-active' : ''}" data-panel="${t.id}">
+                            <div class="wp-prose">${t.content}</div>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+        `;
+    }
+
+    function esc(s: string): string {
+        if (!s) return "";
+        const div = document.createElement("div");
+        div.textContent = s;
+        return div.innerHTML;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tab switching
+    // ---------------------------------------------------------------------------
+    function setupTabs() {
+        const buttons = previewContent.querySelectorAll(".wp-tab-btn");
+        const panels = previewContent.querySelectorAll(".wp-tab-panel");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const tab = btn.getAttribute("data-tab");
+                buttons.forEach(b => b.classList.remove("is-active"));
+                panels.forEach(p => p.classList.remove("is-active"));
+                btn.classList.add("is-active");
+                previewContent.querySelector(`[data-panel="${tab}"]`)?.classList.add("is-active");
+            });
+        });
+    }
+
+    // Observe new content for tab setup
+    const observer = new MutationObserver(() => setupTabs());
+    observer.observe(previewContent, { childList: true, subtree: true });
+
+    // ---------------------------------------------------------------------------
+    // Event listeners
+    // ---------------------------------------------------------------------------
+    textarea.addEventListener("input", () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(updatePreview, 150);
+    });
+
+    // File upload
+    fileUpload.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            textarea.value = reader.result;
+            updatePreview();
+        };
+        reader.readAsText(file);
+        // Reset input so re-uploading the same file triggers change
+        e.target.value = "";
+    });
+
+    // Load example
+    loadExample.addEventListener("click", () => {
+        textarea.value = EXAMPLE_README;
+        updatePreview();
+        textarea.focus();
+    });
+
+    // Clear
+    clearBtn.addEventListener("click", () => {
+        textarea.value = "";
+        updatePreview();
+        textarea.focus();
+    });
+
+    // Handle paste events to trigger immediate update
+    textarea.addEventListener("paste", () => {
+        setTimeout(updatePreview, 50);
+    });
+</script>

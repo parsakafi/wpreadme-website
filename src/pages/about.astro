@@ -1,0 +1,125 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="About"
+            description="About WPReadme Preview, a free online tool to preview WordPress plugin readme.txt files."
+            current="about">
+    <section class="page-hero">
+        <div class="container">
+            <h1 class="page-title">About WPReadme Preview</h1>
+            <p class="page-subtitle">
+                A free online tool to preview your WordPress plugin readme.txt file before publishing it to the plugin
+                directory.
+            </p>
+        </div>
+    </section>
+
+    <section class="container content">
+        <h2>What is WPReadme Preview?</h2>
+        <p>
+            WPReadme Preview lets you paste or upload your WordPress plugin <code>readme.txt</code> file and see exactly
+            how it will look on WordPress.org before you publish. It parses the standard WordPress readme.txt format,
+            including headers, description, installation, FAQ, screenshots, and changelog, and renders a faithful preview
+            that matches the official plugin directory layout.
+        </p>
+
+        <h2>Why use it?</h2>
+        <p>
+            The WordPress plugin directory uses a specific readme.txt format. Formatting mistakes, such as broken links,
+            missing sections, or malformed headers, can make your plugin listing look unprofessional or cause it to
+            be rejected during review. With WPReadme Preview, you can catch before they go live.
+        </p>
+
+        <h2>How it works</h2>
+        <p>
+            Simply paste your readme.txt content into the editor on the home page, or upload a readme.txt file.
+            The preview updates instantly, showing you a rendering that closely matches what visitors see on
+            the WordPress.org plugin directory.
+        </p>
+
+        <h2>Supported readme.txt sections</h2>
+        <ul>
+            <li><strong>Header</strong>, plugin name, contributors, tags, requirements, license, and short description
+            </li>
+            <li><strong>Description</strong>, full plugin description with markdown support</li>
+            <li><strong>Installation</strong>, setup instructions and requirements</li>
+            <li><strong>Frequently Asked Questions</strong>, parsed as expandable Q&amp;A items</li>
+            <li><strong>Screenshots</strong>, captioned screenshot list</li>
+            <li><strong>Changelog</strong>, version history entries</li>
+        </ul>
+
+        <h2>Format reference</h2>
+        <p>
+            This tool follows the official WordPress readme.txt standard as documented at&nbsp;
+            <a href="https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/" target="_blank"
+               rel="noopener">
+               developer.wordpress.org
+            </a>.
+        </p>
+
+        <h2>Open source</h2>
+        <p>
+            WPReadme Preview is free, open source, and runs entirely in your browser.
+            No data is sent to any server. Your readme.txt content stays private on your device.
+        </p>
+    </section>
+</BaseLayout>
+
+<style>
+    .page-hero {
+        background: var(--primary);
+        padding: 5rem 0 3.5rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+        color: #fff;
+    }
+
+    .page-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 42rem;
+        margin: 0 auto;
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    .content {
+        max-width: 46rem;
+        padding-bottom: 4rem;
+    }
+
+    .content h2 {
+        font-size: 1.4rem;
+        margin: 2rem 0 0.8rem;
+        letter-spacing: -0.01em;
+    }
+
+    .content p {
+        color: var(--text-muted);
+        line-height: 1.75;
+        margin-bottom: 1rem;
+    }
+
+    .content ul {
+        padding-left: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .content li {
+        color: var(--text-muted);
+        margin-bottom: 0.45rem;
+        line-height: 1.7;
+    }
+
+    .content code {
+        background: var(--icon-bg);
+        padding: 0.15em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+</style>

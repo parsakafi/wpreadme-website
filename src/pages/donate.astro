@@ -1,0 +1,290 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {Icon} from "astro-icon/components";
+
+const cryptoAddresses = [
+    {
+        name: "Bitcoin (BTC)",
+        address: "bc1qrts24tj0gemzkvewapcguvqdclttyr8amdp5xx",
+        icon: "bitcoin"
+    },
+    {
+        name: "Ethereum (ETH)",
+        address: "0xCFdECBB34CF6226502c25f58378bd606133D6320",
+        icon: "ethereum"
+    },
+    {
+        name: "Solana (SOL)",
+        address: "DDYFM8Ch7WmRfAGSM1AujTNpzmEtKo6YNS3eRsDQoUvL",
+        icon: "solana"
+    },
+    {
+        name: "BNB Smart Chain (BSC)",
+        address: "0xCFdECBB34CF6226502c25f58378bd606133D6320",
+        icon: "bnb"
+    },
+    {
+        name: "Tron (TRX)",
+        address: "TFQvPRHK7pnxckRieLMwvDAkd1w42W12kB",
+        icon: "tron"
+    },
+    {
+        name: "Dogecoin (DOGE)",
+        address: "DAvJTqhq9a7uRmD1PTsueg8v9Nu5nZWC8Q",
+        icon: "dogecoin"
+    },
+    {
+        name: "XRP",
+        address: "raN8etN1j8cmebepXmonboXppnwBy4seAW",
+        icon: "xrp"
+    }
+];
+---
+
+<BaseLayout title="Donate" description="Support WPReadme Preview development with a cryptocurrency donation." current="donate">
+    <section class="page-hero">
+        <div class="container">
+            <h1 class="page-title">Support WPReadme Preview</h1>
+            <p class="page-subtitle">
+                This tool is free and open source. If it has helped you, consider supporting the
+                development with a cryptocurrency donation.
+            </p>
+        </div>
+    </section>
+
+    <!-- Crypto Addresses -->
+    <section class="container crypto-section">
+        <div class="section-head">
+            <span class="section-kicker">Crypto Donations</span>
+            <h2 class="section-title">Send a Donation</h2>
+            <p class="section-desc">
+                Choose your preferred cryptocurrency and copy the address below. Every contribution
+                helps maintain and improve this tool.
+            </p>
+        </div>
+
+        <div class="crypto-grid">
+            {cryptoAddresses.map((crypto) => (
+                    <div class="crypto-card" data-address={crypto.address}>
+                        <div class="crypto-icon">
+                            <Icon name={crypto.icon} height="28" width="28"/>
+                        </div>
+                        <div class="crypto-info">
+                            <h3 class="crypto-name">{crypto.name}</h3>
+                            <p class="crypto-address" title={crypto.address}>{crypto.address}</p>
+                        </div>
+                        <button class="copy-btn" data-copy={crypto.address} aria-label={`Copy ${crypto.name} address`}>
+                            <Icon name="copy" height="18" width="18"/>
+                            <span class="copy-text">Copy</span>
+                        </button>
+                    </div>
+            ))}
+        </div>
+    </section>
+</BaseLayout>
+
+<style>
+    .page-hero {
+        background: var(--primary);
+        padding: 5rem 0 3.5rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+        color: #fff;
+    }
+
+    .page-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 42rem;
+        margin: 0 auto;
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    /* Section styles */
+    .section {
+        padding: 5rem 0;
+    }
+
+    .section-head {
+        text-align: center;
+        max-width: 44rem;
+        margin: 0 auto 3rem;
+    }
+
+    .section-kicker {
+        display: inline-block;
+        color: var(--primary);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+        font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 0.9rem;
+    }
+
+    .section-desc {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    /* Crypto Section */
+    .crypto-section {
+        padding: 3rem 0 5rem;
+    }
+
+    .crypto-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+        max-width: 56rem;
+        margin: 0 auto;
+    }
+
+    .crypto-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--card-bg);
+        transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .crypto-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .crypto-icon {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--icon-bg);
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .crypto-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .crypto-name {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+    }
+
+    .crypto-address {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .copy-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .copy-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--icon-bg);
+    }
+
+    .copy-btn.copied {
+        border-color: var(--success);
+        color: var(--success);
+        background: rgba(22, 163, 74, 0.1);
+    }
+
+    .copy-btn .copy-text {
+        transition: opacity 0.2s ease;
+    }
+
+    @media (max-width: 768px) {
+        .crypto-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    function setupCopyButtons() {
+        const buttons = document.querySelectorAll<HTMLButtonElement>('.copy-btn');
+
+        buttons.forEach(btn => {
+            // Remove old listeners by cloning
+            const newBtn = btn.cloneNode(true) as HTMLButtonElement;
+            btn.parentNode?.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', async () => {
+                const address = newBtn.dataset.copy;
+                if (!address) return;
+
+                try {
+                    await navigator.clipboard.writeText(address);
+                    newBtn.classList.add('copied');
+                    const textEl = newBtn.querySelector('.copy-text');
+                    if (textEl) textEl.textContent = 'Copied!';
+
+                    setTimeout(() => {
+                        newBtn.classList.remove('copied');
+                        if (textEl) textEl.textContent = 'Copy';
+                    }, 2000);
+                } catch (err) {
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = address;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+
+                    newBtn.classList.add('copied');
+                    const textEl = newBtn.querySelector('.copy-text');
+                    if (textEl) textEl.textContent = 'Copied!';
+
+                    setTimeout(() => {
+                        newBtn.classList.remove('copied');
+                        if (textEl) textEl.textContent = 'Copy';
+                    }, 2000);
+                }
+            });
+        });
+    }
+
+    document.addEventListener('astro:page-load', setupCopyButtons);
+</script>
