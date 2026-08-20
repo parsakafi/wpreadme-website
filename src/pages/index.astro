@@ -2,7 +2,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="WPReadme Preview" description="Preview your WordPress plugin readme.txt file before publishing. A free online tool that renders your readme.txt exactly like WordPress.org." current="home">
+<BaseLayout title="WPReadme Preview"
+            description="Preview your WordPress plugin readme.txt file before publishing. A free online tool that renders your readme.txt exactly like WordPress.org."
+            current="home">
     <div class="app-layout" id="app-layout">
         <!-- Left: Editor -->
         <aside class="editor-panel" id="editor-panel">
@@ -10,16 +12,29 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 <h2 class="editor-title">readme.txt</h2>
                 <div class="editor-actions">
                     <label class="upload-btn" for="file-upload" title="Upload readme.txt">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
                         <span>Upload</span>
                     </label>
                     <input type="file" id="file-upload" accept=".txt,text/plain" hidden>
                     <button class="example-btn" type="button" id="load-example" title="Load example readme.txt">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
                         <span>Example</span>
                     </button>
                     <button class="clear-btn" type="button" id="clear-editor" title="Clear editor">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -49,7 +64,14 @@ The preview will update instantly."></textarea>
             </div>
             <div class="preview-content" id="preview-content">
                 <div class="preview-empty" id="preview-empty">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                         stroke-linecap="round" stroke-linejoin="round" opacity="0.3">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
                     <p>Your WordPress readme.txt preview will appear here</p>
                     <p class="preview-hint">Paste content in the editor or upload a file to get started</p>
                 </div>
@@ -249,9 +271,15 @@ The preview will update instantly."></textarea>
     }
 
     @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-        70% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        0% {
+            box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 6px rgba(22, 163, 74, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+        }
     }
 
     .preview-content {
@@ -316,7 +344,7 @@ The preview will update instantly."></textarea>
 
 <script>
     // @ts-nocheck, client-side only
-    import {parseReadme, renderContent} from "../lib/readme-parser";
+    import {parseReadme, renderContent, type ReadmeData} from "../lib/readme-parser";
 
     // ---------------------------------------------------------------------------
     // DOM refs
@@ -474,11 +502,13 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         charCount.textContent = `${textarea.value.length.toLocaleString()} characters`;
     }
 
-    function buildPreviewHtml(data) {
+    function buildPreviewHtml(data: ReadmeData) {
         // --- Parse headers ---
         const metaMap: Record<string, string> = {};
         for (const [k, v] of Object.entries(data.headers)) {
-            metaMap[k.toLowerCase()] = v;
+            if (typeof v === "string") {
+                metaMap[k.toLowerCase()] = v;
+            }
         }
 
         const contributors = data.headers["Contributors"] || "";
@@ -489,14 +519,20 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
 
         // --- Sidebar meta rows (matching WordPress.org layout) ---
         const sidebarMeta = [];
-        if (metaMap["stable tag"]) sidebarMeta.push({ label: "Version", value: metaMap["stable tag"] });
-        sidebarMeta.push({ label: "Last updated", value: "just now" });
-        sidebarMeta.push({ label: "Active installations", value: "10+" });
-        if (metaMap["requires at least"]) sidebarMeta.push({ label: "WordPress version", value: metaMap["requires at least"] + " or higher" });
-        if (metaMap["tested up to"]) sidebarMeta.push({ label: "Tested up to", value: metaMap["tested up to"] });
-        if (metaMap["requires php"]) sidebarMeta.push({ label: "PHP version", value: metaMap["requires php"] + " or higher" });
+        if (metaMap["stable tag"]) sidebarMeta.push({label: "Version", value: metaMap["stable tag"]});
+        sidebarMeta.push({label: "Last updated", value: "just now"});
+        sidebarMeta.push({label: "Active installations", value: "10+"});
+        if (metaMap["requires at least"]) sidebarMeta.push({
+            label: "WordPress version",
+            value: metaMap["requires at least"] + " or higher"
+        });
+        if (metaMap["tested up to"]) sidebarMeta.push({label: "Tested up to", value: metaMap["tested up to"]});
+        if (metaMap["requires php"]) sidebarMeta.push({
+            label: "PHP version",
+            value: metaMap["requires php"] + " or higher"
+        });
         const languages = contributorCount > 1 ? contributorCount : "1";
-        sidebarMeta.push({ label: "Languages", value: `See all ${Math.max(contributorCount * 3, 1)}`, linked: true });
+        sidebarMeta.push({label: "Languages", value: `See all ${Math.max(contributorCount * 3, 1)}`, linked: true});
 
         const sidebarMetaHtml = sidebarMeta.map(m =>
             `<tr class="wp-sidebar-row">
@@ -505,27 +541,27 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             </tr>`
         ).join("");
 
-        const tagsHtml = tags ? tags.split(",").map(t =>
+        const tagsHtml = tags ? tags.split(",").map((t: string) =>
             `<span class="wp-tag">${esc(t.trim())}</span>`
         ).join("") : "";
 
         // --- Extract sections ---
-        const descSection = data.sections.find(s => s.title.toLowerCase() === "description");
+        const descSection = data.sections.find((s: { title: string; }) => s.title.toLowerCase() === "description");
         const descHtml = descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`;
 
-        const installSection = data.sections.find(s => s.title.toLowerCase() === "installation");
+        const installSection = data.sections.find((s: { title: string; }) => s.title.toLowerCase() === "installation");
         const installHtml = installSection ? renderContent(installSection.content) : "<p class=\"wp-empty-msg\">No installation instructions provided.</p>";
 
-        const changelogSection = data.sections.find(s => s.title.toLowerCase() === "changelog");
+        const changelogSection = data.sections.find((s: { title: string; }) => s.title.toLowerCase() === "changelog");
         const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
 
-        const otherSections = data.sections.filter(s => {
+        const otherSections = data.sections.filter((s: { title: string; }) => {
             const t = s.title.toLowerCase();
             return t !== "description" && t !== "installation" &&
-                   t !== "frequently asked questions" && t !== "screenshots" &&
-                   t !== "changelog";
+                t !== "frequently asked questions" && t !== "screenshots" &&
+                t !== "changelog";
         });
-        const otherHtml = otherSections.map(s =>
+        const otherHtml = otherSections.map((s: { title: string; content: string; }) =>
             `<div class="wp-section-block">
                 <h2 class="wp-block-title">${esc(s.title)}</h2>
                 <div class="wp-prose">${renderContent(s.content)}</div>
@@ -537,14 +573,14 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             ? `<div class="wp-section-block">
                 <h2 class="wp-block-title">Screenshots</h2>
                 <div class="wp-screenshots">
-                    ${data.screenshots.map(ss =>
-                        `<div class="wp-screenshot">
+                    ${data.screenshots.map((ss: { number: string; caption: string; }) =>
+                `<div class="wp-screenshot">
                             <div class="wp-screenshot-img">
                                 <span class="wp-screenshot-num">${esc(ss.number)}</span>
                             </div>
                             <p class="wp-screenshot-caption">${esc(ss.caption)}</p>
                         </div>`
-                    ).join("")}
+            ).join("")}
                 </div>
                </div>`
             : "";
@@ -554,11 +590,11 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             ? `<div class="wp-section-block">
                 <h2 class="wp-block-title">FAQ</h2>
                 ${data.faq.map(f =>
-                    `<details class="wp-faq-item">
+                `<details class="wp-faq-item">
                         <summary class="wp-faq-q">${esc(f.question)}?</summary>
                         <div class="wp-faq-a">${renderContent(f.answer)}</div>
                     </details>`
-                ).join("")}
+            ).join("")}
                </div>`
             : "";
 
@@ -571,13 +607,13 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                 <p class="wp-dev-text">\u201c${esc(pluginName)}\u201d is open source software. The following people have contributed to this plugin.</p>
                 <div class="wp-contributors-grid">
                     ${contributorList.map((c, i) => {
-                        const letter = c.charAt(0).toUpperCase();
-                        const color = contributorColors[i % contributorColors.length];
-                        return `<div class="wp-contributor">
+                const letter = c.charAt(0).toUpperCase();
+                const color = contributorColors[i % contributorColors.length];
+                return `<div class="wp-contributor">
                             <div class="wp-contributor-avatar" style="background:${color}">${esc(letter)}</div>
                             <a href="#" class="wp-contributor-name">${esc(c)}</a>
                         </div>`;
-                    }).join("")}
+            }).join("")}
                 </div>
             </div>`
             : "";
@@ -597,26 +633,186 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         // Tab 2: Reviews (example preview)
         // =====================================================================
         const allReviews = [
-            { user: "sarahj", stars: 5, title: "Very useful and easy to set up", date: "August 15, 2026", replies: 1, color: "blue", text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!" },
-            { user: "mike_dev", stars: 5, title: "Excellent developer support", date: "August 3, 2026", replies: 1, color: "green", text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support." },
-            { user: "alexweb", stars: 4, title: "Good plugin, minor UI improvements needed", date: "July 28, 2026", replies: 1, color: "orange", text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates." },
-            { user: "jenny_l", stars: 5, title: "Must-have for any WordPress site", date: "July 20, 2026", replies: 1, color: "blue", text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it." },
-            { user: "webcraft", stars: 5, title: "Clean code, great performance", date: "July 12, 2026", replies: 1, color: "green", text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem." },
-            { user: "theme_fan", stars: 5, title: "Best plugin in its category", date: "June 30, 2026", replies: 1, color: "blue", text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed." },
-            { user: "wp_beginner", stars: 5, title: "Perfect for beginners and pros alike", date: "June 22, 2026", replies: 1, color: "green", text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now." },
-            { user: "code_master", stars: 4, title: "Solid implementation, a few feature requests", date: "June 15, 2026", replies: 1, color: "orange", text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature." },
-            { user: "shop_owner", stars: 5, title: "Increased my conversions significantly", date: "June 8, 2026", replies: 1, color: "blue", text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now." },
-            { user: "design_pro", stars: 5, title: "Beautiful integration with any theme", date: "May 28, 2026", replies: 1, color: "green", text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one." },
-            { user: "dev_ops", stars: 5, title: "Lightweight and well documented", date: "May 20, 2026", replies: 1, color: "blue", text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended." },
-            { user: "small_biz", stars: 5, title: "Exactly what I needed", date: "May 15, 2026", replies: 1, color: "green", text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!" },
-            { user: "freelancer_joe", stars: 4, title: "Great value for a free plugin", date: "May 8, 2026", replies: 1, color: "orange", text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy." },
-            { user: "blog_writer", stars: 5, title: "Made my blog look professional", date: "April 30, 2026", replies: 1, color: "blue", text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel." },
-            { user: "ecommerce_pro", stars: 5, title: "Essential for any WooCommerce store", date: "April 22, 2026", replies: 1, color: "green", text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it." },
-            { user: "plugin_reviewer", stars: 5, title: "Top tier quality and support", date: "April 15, 2026", replies: 1, color: "blue", text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features." },
-            { user: "agency_lead", stars: 5, title: "We deploy this on all client sites", date: "April 8, 2026", replies: 1, color: "green", text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue." },
-            { user: "site_builder", stars: 4, title: "Very capable, needs more hooks", date: "March 30, 2026", replies: 1, color: "orange", text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases." },
-            { user: "store_manager", stars: 5, title: "My customers love the new features", date: "March 22, 2026", replies: 1, color: "blue", text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store." },
-            { user: "wp_enthusiast", stars: 5, title: "Outstanding plugin, five stars well earned", date: "March 15, 2026", replies: 1, color: "green", text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used." },
+            {
+                user: "sarahj",
+                stars: 5,
+                title: "Very useful and easy to set up",
+                date: "August 15, 2026",
+                replies: 1,
+                color: "blue",
+                text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!"
+            },
+            {
+                user: "mike_dev",
+                stars: 5,
+                title: "Excellent developer support",
+                date: "August 3, 2026",
+                replies: 1,
+                color: "green",
+                text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support."
+            },
+            {
+                user: "alexweb",
+                stars: 4,
+                title: "Good plugin, minor UI improvements needed",
+                date: "July 28, 2026",
+                replies: 1,
+                color: "orange",
+                text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates."
+            },
+            {
+                user: "jenny_l",
+                stars: 5,
+                title: "Must-have for any WordPress site",
+                date: "July 20, 2026",
+                replies: 1,
+                color: "blue",
+                text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it."
+            },
+            {
+                user: "webcraft",
+                stars: 5,
+                title: "Clean code, great performance",
+                date: "July 12, 2026",
+                replies: 1,
+                color: "green",
+                text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem."
+            },
+            {
+                user: "theme_fan",
+                stars: 5,
+                title: "Best plugin in its category",
+                date: "June 30, 2026",
+                replies: 1,
+                color: "blue",
+                text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed."
+            },
+            {
+                user: "wp_beginner",
+                stars: 5,
+                title: "Perfect for beginners and pros alike",
+                date: "June 22, 2026",
+                replies: 1,
+                color: "green",
+                text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now."
+            },
+            {
+                user: "code_master",
+                stars: 4,
+                title: "Solid implementation, a few feature requests",
+                date: "June 15, 2026",
+                replies: 1,
+                color: "orange",
+                text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature."
+            },
+            {
+                user: "shop_owner",
+                stars: 5,
+                title: "Increased my conversions significantly",
+                date: "June 8, 2026",
+                replies: 1,
+                color: "blue",
+                text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now."
+            },
+            {
+                user: "design_pro",
+                stars: 5,
+                title: "Beautiful integration with any theme",
+                date: "May 28, 2026",
+                replies: 1,
+                color: "green",
+                text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one."
+            },
+            {
+                user: "dev_ops",
+                stars: 5,
+                title: "Lightweight and well documented",
+                date: "May 20, 2026",
+                replies: 1,
+                color: "blue",
+                text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended."
+            },
+            {
+                user: "small_biz",
+                stars: 5,
+                title: "Exactly what I needed",
+                date: "May 15, 2026",
+                replies: 1,
+                color: "green",
+                text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!"
+            },
+            {
+                user: "freelancer_joe",
+                stars: 4,
+                title: "Great value for a free plugin",
+                date: "May 8, 2026",
+                replies: 1,
+                color: "orange",
+                text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy."
+            },
+            {
+                user: "blog_writer",
+                stars: 5,
+                title: "Made my blog look professional",
+                date: "April 30, 2026",
+                replies: 1,
+                color: "blue",
+                text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel."
+            },
+            {
+                user: "ecommerce_pro",
+                stars: 4,
+                title: "Essential for any WooCommerce store",
+                date: "April 22, 2026",
+                replies: 1,
+                color: "green",
+                text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it."
+            },
+            {
+                user: "plugin_reviewer",
+                stars: 5,
+                title: "Top tier quality and support",
+                date: "April 15, 2026",
+                replies: 1,
+                color: "blue",
+                text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features."
+            },
+            {
+                user: "agency_lead",
+                stars: 5,
+                title: "We deploy this on all client sites",
+                date: "April 8, 2026",
+                replies: 1,
+                color: "green",
+                text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue."
+            },
+            {
+                user: "site_builder",
+                stars: 4,
+                title: "Very capable, needs more hooks",
+                date: "March 30, 2026",
+                replies: 1,
+                color: "orange",
+                text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases."
+            },
+            {
+                user: "store_manager",
+                stars: 5,
+                title: "My customers love the new features",
+                date: "March 22, 2026",
+                replies: 1,
+                color: "blue",
+                text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store."
+            },
+            {
+                user: "wp_enthusiast",
+                stars: 5,
+                title: "Outstanding plugin, five stars well earned",
+                date: "March 15, 2026",
+                replies: 1,
+                color: "green",
+                text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used."
+            },
         ];
 
         // Shuffle and pick 5 random reviews
@@ -626,9 +822,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         const reviewsHtml = `
             <div class="wp-reviews-list">
                 ${selectedReviews.map(r => {
-                    const starsFilled = "\u2605".repeat(r.stars);
-                    const starsEmpty = "\u2606".repeat(5 - r.stars);
-                    return `<div class="wp-review-item">
+            const starsFilled = "\u2605".repeat(r.stars);
+            const starsEmpty = "\u2606".repeat(5 - r.stars);
+            return `<div class="wp-review-item">
                         <div class="wp-review-avatar wp-avatar-${r.color}"></div>
                         <div class="wp-review-body">
                             <div class="wp-review-stars">${starsFilled}${starsEmpty}</div>
@@ -637,7 +833,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                             <p class="wp-review-text">${esc(r.text)}</p>
                         </div>
                     </div>`;
-                }).join("")}
+        }).join("")}
             </div>
         `;
 
@@ -674,10 +870,10 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
 
         // --- Tab definitions ---
         const tabs = [
-            { id: "details", label: "Details", content: detailsContent },
-            { id: "reviews", label: "Reviews", content: reviewsHtml },
-            { id: "installation", label: "Installation", content: installationContent },
-            { id: "development", label: "Development", content: devContent },
+            {id: "details", label: "Details", content: detailsContent},
+            {id: "reviews", label: "Reviews", content: reviewsHtml},
+            {id: "installation", label: "Installation", content: installationContent},
+            {id: "development", label: "Development", content: devContent},
         ];
 
         // =====================================================================
@@ -880,13 +1076,15 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                     editorPanel.style.flexShrink = "0";
                 }
             }
-        } catch (e) { /* localStorage unavailable */ }
+        } catch (e) { /* localStorage unavailable */
+        }
 
         function saveWidth() {
             try {
                 const w = Math.round(editorPanel.getBoundingClientRect().width);
                 localStorage.setItem(STORAGE_KEY, String(w));
-            } catch (e) { /* localStorage unavailable */ }
+            } catch (e) { /* localStorage unavailable */
+            }
         }
 
         function onDragStart(clientX) {

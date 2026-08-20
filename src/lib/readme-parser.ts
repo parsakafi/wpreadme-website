@@ -43,7 +43,7 @@ export interface ScreenshotItem {
  * Parse a readme.txt string into structured data.
  */
 export function parseReadme(raw: string): ReadmeData {
-  // Normalise line endings
+  // Normalize line endings
   const text = raw.replace(/\r\n?/g, "\n");
   const lines = text.split("\n");
 
