@@ -48,416 +48,477 @@ const {title, description, current, image, robots} = Astro.props;
                 const theme = currentTheme();
                 document.documentElement.setAttribute('data-theme', theme);
                 syncThemeColor(theme);
-                return theme;
             }
 
-            // Run before first paint so there is no light-mode flash.
             applyTheme();
 
-            // Set up one-time listeners (this inline script only runs on a
-            // full page load; the listeners survive ClientRouter navigation).
-            if (!window.__jetexirThemeInit) {
-                window.__jetexirThemeInit = true;
-
-                // The ClientRouter replaces the <html> attributes during the
-                // swap, which drops data-theme. Re-apply after every swap.
-                document.addEventListener('astro:page-load', function () {
-                    applyTheme();
-                });
-
-                // Follow OS theme changes unless the visitor picked a theme
-                // manually.
-                if (window.matchMedia) {
-                    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-                    const onChange = (e) => {
-                        if (!storedTheme()) {
-                            const theme = e.matches ? 'dark' : 'light';
-                            document.documentElement.setAttribute('data-theme', theme);
-                            syncThemeColor(theme);
-                        }
-                    };
-                    if (mq.addEventListener) {
-                        mq.addEventListener('change', onChange);
-                    } else if (mq.addListener) {
-                        mq.addListener(onChange);
-                    }
-                }
-            }
+            // Re-apply theme after every View Transition navigation.
+            // astro:after-swap fires immediately after the new DOM is attached
+            // (prevents flash of wrong theme). astro:page-load is a safety net.
+            document.addEventListener('astro:after-swap', applyTheme);
+            document.addEventListener('astro:page-load', applyTheme);
         })();
     </script>
-    <BaseHead title={title} description={description}
-              image={image} current={current} robots={robots}/>
+    <BaseHead title={title} description={description} image={image} robots={robots} />
 </head>
-<body class={'pages ' + current}>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M3MHRZ59"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<Header current={current}/>
-
-{current === 'home' ? (
-    <main class="app-main">
-        <slot/>
+<body>
+    <Header current={current} />
+    <main>
+        <slot />
     </main>
-) : (
-    <>
-        <main>
-            <slot/>
-        </main>
-        <Footer/>
-    </>
-)}
+    <Footer />
+
+    <style is:global>
+        :root {
+            --background: #ffffff;
+            --footer-bg: #1d1438;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --text: #18181b;
+            --text-muted: #52525b;
+            --text-dim: #9ca3af;
+            --text-white: #fff;
+            --footer-link: rgb(180, 180, 190);
+            --footer-link-hover: rgb(255, 255, 255);
+            --primary: #23282d;
+            --secondary: #23282d;
+            --pink: #d946ef;
+            --success: #16a34a;
+            --gradient: linear-gradient(135deg, #23282d 0%, #3c434a 100%);
+            --icon-bg: rgba(35, 40, 45, 0.1);
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --header-height: 68px;
+            --radius: 16px;
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --background: #12141d;
+            --card-bg: #1a1d28;
+            --border: #2b2f40;
+            --text: #ececf1;
+            --text-muted: #a6aabb;
+            --text-dim: #6d7283;
+            --icon-bg: rgba(255, 255, 255, 0.06);
+            --header-bg: rgba(18, 20, 29, 0.85);
+            --footer-bg: #0d0f16;
+        }
+
+        html[data-theme="dark"] body {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .btn-ghost {
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .btn-ghost:hover,
+        html[data-theme="dark"] .btn-ghost:focus {
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .hero-badge {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Preview element dark mode overrides */
+        html[data-theme="dark"] .preview-header {
+            background: var(--card-bg);
+            border-bottom-color: var(--border);
+        }
+
+        html[data-theme="dark"] .preview-title {
+            color: var(--text-muted);
+        }
+
+        html[data-theme="dark"] .preview-badge {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .preview-empty {
+            color: var(--text-dim);
+        }
+
+        /* Prose/content headings */
+        html[data-theme="dark"] .prose h1,
+        html[data-theme="dark"] .prose h2,
+        html[data-theme="dark"] .prose h3,
+        html[data-theme="dark"] .prose h4,
+        html[data-theme="dark"] .prose strong,
+        html[data-theme="dark"] .content h1,
+        html[data-theme="dark"] .content h2,
+        html[data-theme="dark"] .content h3,
+        html[data-theme="dark"] .content h4,
+        html[data-theme="dark"] .content strong {
+            color: var(--text);
+        }
+
+        /* Prose/content paragraphs */
+        html[data-theme="dark"] .prose p,
+        html[data-theme="dark"] .prose li,
+        html[data-theme="dark"] .content p,
+        html[data-theme="dark"] .content li {
+            color: var(--text-muted);
+        }
+
+        /* Prose/content links */
+        html[data-theme="dark"] .prose a:not(.btn),
+        html[data-theme="dark"] .content a:not(.btn) {
+            color: #5b8def;
+        }
+
+        /* Prose/content blockquotes */
+        html[data-theme="dark"] .prose blockquote,
+        html[data-theme="dark"] .content blockquote {
+            background: var(--card-bg);
+            border-left-color: var(--border);
+        }
+
+        html[data-theme="dark"] .prose blockquote p,
+        html[data-theme="dark"] .content blockquote p {
+            color: var(--text-muted);
+        }
+
+        /* --- WordPress plugin preview dark mode --- */
+
+        /* Plugin page base */
+        html[data-theme="dark"] .wp-plugin-page {
+            color: var(--text);
+        }
+
+        /* Plugin header */
+        html[data-theme="dark"] .wp-plugin-name {
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .wp-plugin-author {
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .wp-plugin-author a {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-plugin-icon {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .wp-plugin-icon svg {
+            stroke: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-heart-btn {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--border);
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .wp-heart-btn:hover {
+            border-color: #5b8def;
+            color: #5b8def;
+        }
+
+        /* Tab nav */
+        html[data-theme="dark"] .wp-tab-nav {
+            border-bottom-color: var(--border);
+        }
+
+        html[data-theme="dark"] .wp-tab-btn {
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .wp-tab-btn:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.06);
+        }
+
+        html[data-theme="dark"] .wp-tab-btn.is-active {
+            color: var(--text);
+            background: var(--background);
+            border-color: var(--border);
+            border-bottom-color: var(--background);
+        }
+
+        /* Body grid */
+        html[data-theme="dark"] .wp-body {
+            /* grid layout preserved */
+        }
+
+        /* Content headings */
+        html[data-theme="dark"] .wp-content-title,
+        html[data-theme="dark"] .wp-block-title,
+        html[data-theme="dark"] .wp-prose h1,
+        html[data-theme="dark"] .wp-prose h2,
+        html[data-theme="dark"] .wp-prose h3,
+        html[data-theme="dark"] .wp-prose h4 {
+            color: var(--text);
+        }
+
+        /* Content text */
+        html[data-theme="dark"] .wp-prose p,
+        html[data-theme="dark"] .wp-prose li {
+            color: var(--text-muted);
+        }
+
+        /* Content links */
+        html[data-theme="dark"] .wp-prose a:not(.btn) {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-prose a:not(.btn):hover {
+            color: #7ba3f7;
+        }
+
+        /* Content code */
+        html[data-theme="dark"] .wp-prose code {
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .wp-prose pre {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .wp-prose blockquote {
+            background: var(--card-bg);
+            border-left-color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-prose blockquote p {
+            color: var(--text-muted);
+        }
+
+        html[data-theme="dark"] .wp-prose hr {
+            border-top-color: var(--border);
+        }
+
+        /* FAQ */
+        html[data-theme="dark"] .wp-faq-item {
+            border-bottom-color: var(--border);
+        }
+
+        html[data-theme="dark"] .wp-faq-q {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-faq-q:hover {
+            color: #7ba3f7;
+        }
+
+        html[data-theme="dark"] .wp-faq-a {
+            color: var(--text-muted);
+        }
+
+        /* Screenshots */
+        html[data-theme="dark"] .wp-screenshot-img {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--border);
+        }
+
+        /* Sidebar */
+        html[data-theme="dark"] .wp-sidebar-th {
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .wp-sidebar-td {
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .wp-sidebar-row {
+            border-bottom-color: var(--border);
+        }
+
+        html[data-theme="dark"] .wp-sidebar-heading {
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .wp-sidebar-link {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-sidebar-tags-row {
+            /* no border */
+        }
+
+        html[data-theme="dark"] .wp-sidebar-tags-label {
+            color: var(--text);
+        }
+
+        html[data-theme="dark"] .wp-tag {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        html[data-theme="dark"] .wp-advanced-view {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-support-link {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-rating-text,
+        html[data-theme="dark"] .wp-support-text {
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .wp-support-link-block a {
+            color: #5b8def;
+        }
+
+        /* Reviews */
+        html[data-theme="dark"] .wp-review-item {
+            border-bottom-color: var(--border);
+        }
+
+        html[data-theme="dark"] .wp-review-title {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-review-meta {
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .wp-review-text {
+            color: var(--text-muted);
+        }
+
+        /* Contributors */
+        html[data-theme="dark"] .wp-contributor-name {
+            color: #5b8def;
+        }
+
+        /* Empty / error messages */
+        html[data-theme="dark"] .wp-empty-msg {
+            color: var(--text-dim);
+        }
+
+        /* Rating bars */
+        html[data-theme="dark"] .wp-rating-bar {
+            background: rgba(255,255,255,0.1);
+        }
+
+        html[data-theme="dark"] .wp-rating-score {
+            color: var(--text-dim);
+        }
+
+        html[data-theme="dark"] .wp-rating-label {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-rating-count {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-rating-link {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-dev-text {
+            color: var(--text-muted);
+        }
+
+        html[data-theme="dark"] .wp-dev-text a {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .wp-dev-subtitle {
+            color: var(--text);
+        }
+
+        /* Maximize button dark mode */
+        html[data-theme="dark"] .maximize-btn {
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .maximize-btn:hover {
+            color: #5b8def;
+            border-color: #5b8def;
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Editor toolbar buttons (upload, example, clear) dark mode */
+        html[data-theme="dark"] .upload-btn,
+        html[data-theme="dark"] .example-btn,
+        html[data-theme="dark"] .clear-btn {
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .upload-btn:hover,
+        html[data-theme="dark"] .example-btn:hover,
+        html[data-theme="dark"] .clear-btn:hover {
+            color: #5b8def;
+            border-color: #5b8def;
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Theme toggle dark mode */
+        html[data-theme="dark"] .theme-toggle {
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .theme-toggle:hover {
+            color: #5b8def;
+            border-color: #5b8def;
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Copy button (donate page) dark mode */
+        html[data-theme="dark"] .copy-btn {
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        html[data-theme="dark"] .copy-btn:hover {
+            color: #5b8def;
+            border-color: #5b8def;
+            background: rgba(255,255,255,0.08);
+        }
+
+        html[data-theme="dark"] .copy-btn.copied {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(22,163,74,0.15);
+        }
+
+        /* Resize handle dark mode */
+        html[data-theme="dark"] .resize-handle {
+            background: var(--border);
+        }
+
+        html[data-theme="dark"] .resize-handle:hover,
+        html[data-theme="dark"] .resize-handle.drag {
+            background: #5b8def;
+        }
+
+        html[data-theme="dark"] .resize-dots {
+            background-image: radial-gradient(circle, var(--text-dim) 1px, transparent 1px);
+        }
+
+        /* Donate page dark mode */
+        html[data-theme="dark"] .section-kicker {
+            color: #5b8def;
+        }
+
+        html[data-theme="dark"] .crypto-card:hover {
+            border-color: #5b8def;
+        }
+
+
+
+        html[data-theme="dark"] .crypto-card {
+            background: var(--card-bg);
+            border-color: var(--border);
+        }
+    </style>
 </body>
 </html>
-
-<style is:global>
-    html {
-        color-scheme: light;
-    }
-
-    /* Dark theme tokens, override the light palette from helper.scss. */
-    html[data-theme="dark"] {
-        color-scheme: dark;
-        --background: #12141d;
-        --card-bg: #1a1d28;
-        --border: #2b2f40;
-        --text: #ececf1;
-        --text-muted: #a6aabb;
-        --text-dim: #6d7283;
-        --primary: #23282d;
-        --success: #4ade80;
-        --icon-bg: rgba(35, 40, 45, 0.25);
-        --header-bg: rgba(18, 20, 29, 0.85);
-        --footer-bg: #111318;
-        --section-alt-bg: #171a26;
-        --hero-bg: linear-gradient(180deg, #1a1d22 0%, #15171c 55%, #12141d 100%);
-        --gradient: linear-gradient(135deg, #23282d 0%, #3c434a 100%);
-    }
-
-    /* body and .btn-ghost carry hardcoded light colors in style.min.css. */
-    html[data-theme="dark"] body {
-        background-color: var(--background);
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .btn-ghost {
-        color: var(--text);
-        border-color: var(--border);
-    }
-
-    html[data-theme="dark"] .btn-ghost:hover,
-    html[data-theme="dark"] .btn-ghost:focus {
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .hero-badge {
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    /* App main: full-height layout for the split-pane home page */
-    .app-main {
-        flex: 1 0 auto;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* .prose / .content carry hardcoded text colors in style.min.css that
-       become unreadable on the dark background. */
-    html[data-theme="dark"] .prose h1,
-    html[data-theme="dark"] .prose h2,
-    html[data-theme="dark"] .prose h3,
-    html[data-theme="dark"] .prose h4,
-    html[data-theme="dark"] .prose strong,
-    html[data-theme="dark"] .content h1,
-    html[data-theme="dark"] .content h2,
-    html[data-theme="dark"] .content h3,
-    html[data-theme="dark"] .content h4,
-    html[data-theme="dark"] .content strong {
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .prose p,
-    html[data-theme="dark"] .prose li,
-    html[data-theme="dark"] .content p,
-    html[data-theme="dark"] .content li {
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .prose a:not(.btn),
-    html[data-theme="dark"] .content a:not(.btn) {
-        color: var(--primary);
-    }
-
-    html[data-theme="dark"] .prose blockquote,
-    html[data-theme="dark"] .content blockquote {
-        background: var(--card-bg);
-        border-left-color: var(--border);
-    }
-
-    html[data-theme="dark"] .prose blockquote p,
-    html[data-theme="dark"] .content blockquote p {
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .prose blockquote cite,
-    html[data-theme="dark"] .content blockquote cite {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] code {
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    html[data-theme="dark"] figure figcaption {
-        background: var(--card-bg);
-        color: var(--text-muted);
-    }
-
-    /* ==========================================================================
-       Preview dark mode: override all hardcoded WordPress.org light-theme colors
-       ========================================================================== */
-
-    /* Plugin page wrapper */
-    html[data-theme="dark"] .wp-plugin-page {
-        color: var(--text);
-    }
-
-    /* Plugin header */
-    html[data-theme="dark"] .wp-plugin-name {
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .wp-plugin-author {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-plugin-author a {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-plugin-icon {
-        background: rgba(255,255,255,0.06);
-        border-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-plugin-icon svg {
-        stroke: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-heart-btn {
-        background: rgba(255,255,255,0.06);
-        border-color: var(--border);
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-heart-btn:hover {
-        border-color: #5b8def;
-        color: #5b8def;
-    }
-
-    /* Tab nav */
-    html[data-theme="dark"] .wp-tab-nav {
-        border-bottom-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-tab-btn {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-tab-btn:hover {
-        color: var(--text);
-        background: rgba(255,255,255,0.06);
-    }
-
-    html[data-theme="dark"] .wp-tab-btn.is-active {
-        color: var(--text);
-        background: var(--background);
-        border-color: var(--border);
-        border-bottom-color: var(--background);
-    }
-
-    /* Support link in tab bar */
-    html[data-theme="dark"] .wp-support-link {
-        color: #5b8def;
-    }
-
-    /* Block titles and section headings */
-    html[data-theme="dark"] .wp-block-title,
-    html[data-theme="dark"] .wp-content-title,
-    html[data-theme="dark"] .wp-dev-subtitle {
-        color: var(--text);
-    }
-
-    /* Prose inside preview */
-    html[data-theme="dark"] .wp-prose h1,
-    html[data-theme="dark"] .wp-prose h2,
-    html[data-theme="dark"] .wp-prose h3,
-    html[data-theme="dark"] .wp-prose h4,
-    html[data-theme="dark"] .wp-prose strong {
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .wp-prose p,
-    html[data-theme="dark"] .wp-prose li,
-    html[data-theme="dark"] .wp-dev-text {
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .wp-prose a:not(.btn),
-    html[data-theme="dark"] .wp-dev-text a,
-    html[data-theme="dark"] .wp-support-link-block a {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-prose code {
-        background: rgba(255,255,255,0.08);
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .wp-prose pre {
-        background: rgba(255,255,255,0.04);
-        border-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-prose blockquote {
-        background: var(--card-bg);
-        border-left-color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-prose blockquote p {
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .wp-prose hr {
-        border-top-color: var(--border);
-    }
-
-    /* FAQ */
-    html[data-theme="dark"] .wp-faq-q {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-faq-q:hover {
-        color: #7ba3f7;
-    }
-
-    html[data-theme="dark"] .wp-faq-item[open] .wp-faq-q {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-faq-item {
-        border-bottom-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-faq-q::after {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-faq-a {
-        color: var(--text-muted);
-    }
-
-    /* Screenshots */
-    html[data-theme="dark"] .wp-screenshot-img {
-        background: rgba(255,255,255,0.04);
-        border-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-screenshot-num {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-screenshot-caption {
-        color: var(--text-dim);
-    }
-
-    /* Sidebar */
-    html[data-theme="dark"] .wp-sidebar-th {
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .wp-sidebar-td {
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .wp-sidebar-row {
-        border-bottom-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-sidebar-tags-label {
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .wp-sidebar-heading {
-        color: var(--text);
-    }
-
-    html[data-theme="dark"] .wp-sidebar-link {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-tag {
-        background: rgba(255,255,255,0.06);
-        border-color: var(--border);
-        color: var(--text-muted);
-    }
-
-    html[data-theme="dark"] .wp-advanced-view {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-rating-text,
-    html[data-theme="dark"] .wp-support-text {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-support-link-block a {
-        color: #5b8def;
-    }
-
-    /* Ratings */
-    html[data-theme="dark"] .wp-rating-label,
-    html[data-theme="dark"] .wp-rating-count,
-    html[data-theme="dark"] .wp-rating-link {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-rating-score {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-rating-bar {
-        background: rgba(255,255,255,0.1);
-    }
-
-    html[data-theme="dark"] .wp-rating-stars-big {
-        color: #e26f56;
-    }
-
-    /* Reviews */
-    html[data-theme="dark"] .wp-review-item {
-        border-bottom-color: var(--border);
-    }
-
-    html[data-theme="dark"] .wp-review-title {
-        color: #5b8def;
-    }
-
-    html[data-theme="dark"] .wp-review-meta {
-        color: var(--text-dim);
-    }
-
-    html[data-theme="dark"] .wp-review-text {
-        color: var(--text-muted);
-    }
-
-    /* Contributors */
-    html[data-theme="dark"] .wp-contributor-name {
-        color: #5b8def;
-    }
-
-    /* Empty / error messages */
-    html[data-theme="dark"] .wp-empty-msg {
-        color: var(--text-dim);
-    }
-</style>
