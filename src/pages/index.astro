@@ -3,9 +3,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="WPReadme Preview" description="Preview your WordPress plugin readme.txt file before publishing. A free online tool that renders your readme.txt exactly like WordPress.org." current="home">
-    <div class="app-layout">
+    <div class="app-layout" id="app-layout">
         <!-- Left: Editor -->
-        <aside class="editor-panel">
+        <aside class="editor-panel" id="editor-panel">
             <div class="editor-header">
                 <h2 class="editor-title">readme.txt</h2>
                 <div class="editor-actions">
@@ -33,8 +33,13 @@ The preview will update instantly."></textarea>
             </div>
         </aside>
 
+        <!-- Drag handle -->
+        <div class="resize-handle" id="resize-handle" title="Drag to resize">
+            <span class="resize-dots"></span>
+        </div>
+
         <!-- Right: Preview -->
-        <main class="preview-panel">
+        <main class="preview-panel" id="preview-panel">
             <div class="preview-header">
                 <h2 class="preview-title">Preview</h2>
                 <div class="preview-badge" id="preview-status">
@@ -55,8 +60,7 @@ The preview will update instantly."></textarea>
 
 <style>
     .app-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
         height: calc(100vh - var(--header-height, 68px));
         overflow: hidden;
     }
@@ -65,7 +69,8 @@ The preview will update instantly."></textarea>
     .editor-panel {
         display: flex;
         flex-direction: column;
-        border-right: 1px solid var(--border);
+        width: 50%;
+        min-width: 200px;
         background: var(--background);
     }
 
@@ -153,10 +158,45 @@ The preview will update instantly."></textarea>
         color: var(--text-dim);
     }
 
+    /* --- Resize handle --- */
+    .resize-handle {
+        width: 5px;
+        cursor: col-resize;
+        background: var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+        transition: background 0.15s;
+    }
+
+    .resize-handle:hover,
+    .resize-handle.dragging {
+        background: var(--primary);
+    }
+
+    .resize-dots {
+        display: block;
+        width: 3px;
+        height: 24px;
+        background-image: radial-gradient(circle, var(--text-dim) 1px, transparent 1px);
+        background-size: 3px 6px;
+        opacity: 0.6;
+    }
+
+    .resize-handle:hover .resize-dots,
+    .resize-handle.dragging .resize-dots {
+        opacity: 1;
+    }
+
     /* --- Preview Panel --- */
     .preview-panel {
         display: flex;
         flex-direction: column;
+        flex: 1;
+        min-width: 200px;
         overflow: hidden;
         background: var(--background);
     }
@@ -244,15 +284,32 @@ The preview will update instantly."></textarea>
     /* --- Mobile --- */
     @media (max-width: 768px) {
         .app-layout {
-            grid-template-columns: 1fr;
-            grid-template-rows: 40vh 1fr;
+            flex-direction: column;
             height: auto;
             min-height: calc(100vh - var(--header-height, 68px));
         }
 
         .editor-panel {
-            border-right: none;
-            border-bottom: 1px solid var(--border);
+            width: 100% !important;
+            min-width: 0;
+            height: 40vh;
+        }
+
+        .resize-handle {
+            width: auto;
+            height: 5px;
+            cursor: row-resize;
+        }
+
+        .resize-dots {
+            width: 24px;
+            height: 3px;
+            background-size: 6px 3px;
+        }
+
+        .preview-panel {
+            min-width: 0;
+            flex: 1;
         }
     }
 </style>
@@ -418,26 +475,33 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     }
 
     function buildPreviewHtml(data) {
-        // --- Sidebar meta ---
-        const sidebarMeta = [];
+        // --- Parse headers ---
         const metaMap: Record<string, string> = {};
         for (const [k, v] of Object.entries(data.headers)) {
             metaMap[k.toLowerCase()] = v;
         }
-        if (metaMap["stable tag"]) sidebarMeta.push({ label: "Version", value: metaMap["stable tag"] });
-        if (metaMap["requires at least"]) sidebarMeta.push({ label: "Requires at least", value: metaMap["requires at least"] });
-        if (metaMap["tested up to"]) sidebarMeta.push({ label: "Tested up to", value: metaMap["tested up to"] });
-        if (metaMap["requires php"]) sidebarMeta.push({ label: "Requires PHP", value: metaMap["requires php"] });
-        if (metaMap["license"]) sidebarMeta.push({ label: "License", value: metaMap["license"] });
 
         const contributors = data.headers["Contributors"] || "";
+        const contributorCount = contributors ? contributors.split(",").length : 0;
         const tags = data.headers["Tags"] || "";
-        const author = data.headers["Contributors"]?.split(",")[0]?.trim() || "";
+        const author = contributors.split(",")[0]?.trim() || "Unknown";
+        const pluginName = data.name || "Plugin";
+
+        // --- Sidebar meta rows (matching WordPress.org layout) ---
+        const sidebarMeta = [];
+        if (metaMap["stable tag"]) sidebarMeta.push({ label: "Version", value: metaMap["stable tag"] });
+        sidebarMeta.push({ label: "Last updated", value: "just now" });
+        sidebarMeta.push({ label: "Active installations", value: "10+" });
+        if (metaMap["requires at least"]) sidebarMeta.push({ label: "WordPress version", value: metaMap["requires at least"] + " or higher" });
+        if (metaMap["tested up to"]) sidebarMeta.push({ label: "Tested up to", value: metaMap["tested up to"] });
+        if (metaMap["requires php"]) sidebarMeta.push({ label: "PHP version", value: metaMap["requires php"] + " or higher" });
+        const languages = contributorCount > 1 ? contributorCount : "1";
+        sidebarMeta.push({ label: "Languages", value: `See all ${Math.max(contributorCount * 3, 1)}`, linked: true });
 
         const sidebarMetaHtml = sidebarMeta.map(m =>
             `<tr class="wp-sidebar-row">
                 <th class="wp-sidebar-th">${esc(m.label)}</th>
-                <td class="wp-sidebar-td">${esc(m.value)}</td>
+                <td class="wp-sidebar-td">${m.linked ? `<a href="#" class="wp-sidebar-link">${esc(m.value)}</a>` : esc(m.value)}</td>
             </tr>`
         ).join("");
 
@@ -445,26 +509,28 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             `<span class="wp-tag">${esc(t.trim())}</span>`
         ).join("") : "";
 
-        // --- Description section ---
+        // --- Extract sections ---
         const descSection = data.sections.find(s => s.title.toLowerCase() === "description");
         const descHtml = descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`;
 
-        // --- Installation section ---
         const installSection = data.sections.find(s => s.title.toLowerCase() === "installation");
-        const installHtml = installSection ? renderContent(installSection.content) : "";
+        const installHtml = installSection ? renderContent(installSection.content) : "<p class=\"wp-empty-msg\">No installation instructions provided.</p>";
 
-        // --- FAQ ---
-        const faqHtml = data.faq.length > 0
-            ? `<div class="wp-section-block">
-                <h2 class="wp-block-title">FAQ</h2>
-                ${data.faq.map(f =>
-                    `<details class="wp-faq-item">
-                        <summary class="wp-faq-q">${esc(f.question)}?</summary>
-                        <div class="wp-faq-a">${renderContent(f.answer)}</div>
-                    </details>`
-                ).join("")}
-               </div>`
-            : "";
+        const changelogSection = data.sections.find(s => s.title.toLowerCase() === "changelog");
+        const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
+
+        const otherSections = data.sections.filter(s => {
+            const t = s.title.toLowerCase();
+            return t !== "description" && t !== "installation" &&
+                   t !== "frequently asked questions" && t !== "screenshots" &&
+                   t !== "changelog";
+        });
+        const otherHtml = otherSections.map(s =>
+            `<div class="wp-section-block">
+                <h2 class="wp-block-title">${esc(s.title)}</h2>
+                <div class="wp-prose">${renderContent(s.content)}</div>
+            </div>`
+        ).join("");
 
         // --- Screenshots ---
         const ssHtml = data.screenshots.length > 0
@@ -483,44 +549,211 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                </div>`
             : "";
 
-        // --- Changelog ---
-        const changelogSection = data.sections.find(s => s.title.toLowerCase() === "changelog");
-        const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
+        // --- FAQ ---
+        const faqHtml = data.faq.length > 0
+            ? `<div class="wp-section-block">
+                <h2 class="wp-block-title">FAQ</h2>
+                ${data.faq.map(f =>
+                    `<details class="wp-faq-item">
+                        <summary class="wp-faq-q">${esc(f.question)}?</summary>
+                        <div class="wp-faq-a">${renderContent(f.answer)}</div>
+                    </details>`
+                ).join("")}
+               </div>`
+            : "";
 
-        // --- Other sections ---
-        const otherSections = data.sections.filter(s => {
-            const t = s.title.toLowerCase();
-            return t !== "description" && t !== "installation" &&
-                   t !== "frequently asked questions" && t !== "screenshots" &&
-                   t !== "changelog";
-        });
-        const otherHtml = otherSections.map(s =>
-            `<div class="wp-section-block">
-                <h2 class="wp-block-title">${esc(s.title)}</h2>
-                <div class="wp-prose">${renderContent(s.content)}</div>
+        // --- Contributors & Developers section ---
+        const contributorList = contributors.split(",").map(c => c.trim()).filter(Boolean);
+        const contributorColors = ["#0073aa", "#996800", "#00a32a", "#d63638", "#826eb4", "#ca4a1f", "#00b9eb"];
+        const contributorsHtml = contributorList.length > 0
+            ? `<div class="wp-section-block">
+                <h2 class="wp-block-title">Contributors &amp; Developers</h2>
+                <p class="wp-dev-text">\u201c${esc(pluginName)}\u201d is open source software. The following people have contributed to this plugin.</p>
+                <div class="wp-contributors-grid">
+                    ${contributorList.map((c, i) => {
+                        const letter = c.charAt(0).toUpperCase();
+                        const color = contributorColors[i % contributorColors.length];
+                        return `<div class="wp-contributor">
+                            <div class="wp-contributor-avatar" style="background:${color}">${esc(letter)}</div>
+                            <a href="#" class="wp-contributor-name">${esc(c)}</a>
+                        </div>`;
+                    }).join("")}
+                </div>
             </div>`
-        ).join("");
+            : "";
 
-        // --- Build tab content ---
-        // WordPress.org shows: Details tab = Description + Screenshots + FAQ + Changelog
-        const detailsContent = [descHtml, ssHtml, faqHtml, changelogHtml, otherHtml].filter(Boolean).join("");
+        // =====================================================================
+        // Tab 1: Details (Description + Screenshots + FAQ + Contributors)
+        // =====================================================================
+        const detailsContent = [
+            `<div class="wp-section-block"><h2 class="wp-block-title">Description</h2><div class="wp-prose">${descHtml}</div></div>`,
+            ssHtml,
+            faqHtml,
+            contributorsHtml,
+            otherHtml,
+        ].filter(Boolean).join("");
+
+        // =====================================================================
+        // Tab 2: Reviews (example preview)
+        // =====================================================================
+        const allReviews = [
+            { user: "sarahj", stars: 5, title: "Very useful and easy to set up", date: "August 15, 2026", replies: 1, color: "blue", text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!" },
+            { user: "mike_dev", stars: 5, title: "Excellent developer support", date: "August 3, 2026", replies: 1, color: "green", text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support." },
+            { user: "alexweb", stars: 4, title: "Good plugin, minor UI improvements needed", date: "July 28, 2026", replies: 1, color: "orange", text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates." },
+            { user: "jenny_l", stars: 5, title: "Must-have for any WordPress site", date: "July 20, 2026", replies: 1, color: "blue", text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it." },
+            { user: "webcraft", stars: 5, title: "Clean code, great performance", date: "July 12, 2026", replies: 1, color: "green", text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem." },
+            { user: "theme_fan", stars: 5, title: "Best plugin in its category", date: "June 30, 2026", replies: 1, color: "blue", text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed." },
+            { user: "wp_beginner", stars: 5, title: "Perfect for beginners and pros alike", date: "June 22, 2026", replies: 1, color: "green", text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now." },
+            { user: "code_master", stars: 4, title: "Solid implementation, a few feature requests", date: "June 15, 2026", replies: 1, color: "orange", text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature." },
+            { user: "shop_owner", stars: 5, title: "Increased my conversions significantly", date: "June 8, 2026", replies: 1, color: "blue", text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now." },
+            { user: "design_pro", stars: 5, title: "Beautiful integration with any theme", date: "May 28, 2026", replies: 1, color: "green", text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one." },
+            { user: "dev_ops", stars: 5, title: "Lightweight and well documented", date: "May 20, 2026", replies: 1, color: "blue", text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended." },
+            { user: "small_biz", stars: 5, title: "Exactly what I needed", date: "May 15, 2026", replies: 1, color: "green", text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!" },
+            { user: "freelancer_joe", stars: 4, title: "Great value for a free plugin", date: "May 8, 2026", replies: 1, color: "orange", text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy." },
+            { user: "blog_writer", stars: 5, title: "Made my blog look professional", date: "April 30, 2026", replies: 1, color: "blue", text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel." },
+            { user: "ecommerce_pro", stars: 5, title: "Essential for any WooCommerce store", date: "April 22, 2026", replies: 1, color: "green", text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it." },
+            { user: "plugin_reviewer", stars: 5, title: "Top tier quality and support", date: "April 15, 2026", replies: 1, color: "blue", text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features." },
+            { user: "agency_lead", stars: 5, title: "We deploy this on all client sites", date: "April 8, 2026", replies: 1, color: "green", text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue." },
+            { user: "site_builder", stars: 4, title: "Very capable, needs more hooks", date: "March 30, 2026", replies: 1, color: "orange", text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases." },
+            { user: "store_manager", stars: 5, title: "My customers love the new features", date: "March 22, 2026", replies: 1, color: "blue", text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store." },
+            { user: "wp_enthusiast", stars: 5, title: "Outstanding plugin, five stars well earned", date: "March 15, 2026", replies: 1, color: "green", text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used." },
+        ];
+
+        // Shuffle and pick 5 random reviews
+        const shuffled = [...allReviews].sort(() => Math.random() - 0.5);
+        const selectedReviews = shuffled.slice(0, 5);
+
+        const reviewsHtml = `
+            <div class="wp-reviews-list">
+                ${selectedReviews.map(r => {
+                    const starsFilled = "\u2605".repeat(r.stars);
+                    const starsEmpty = "\u2606".repeat(5 - r.stars);
+                    return `<div class="wp-review-item">
+                        <div class="wp-review-avatar wp-avatar-${r.color}"></div>
+                        <div class="wp-review-body">
+                            <div class="wp-review-stars">${starsFilled}${starsEmpty}</div>
+                            <a href="#" class="wp-review-title">${esc(r.title)}</a>
+                            <div class="wp-review-meta">${esc(r.user)} \u00b7 ${esc(r.date)} \u00b7 ${r.replies} reply</div>
+                            <p class="wp-review-text">${esc(r.text)}</p>
+                        </div>
+                    </div>`;
+                }).join("")}
+            </div>
+        `;
+
+        // =====================================================================
+        // Tab 3: Installation
+        // =====================================================================
+        const installationContent = `
+            <div class="wp-section-block">
+                <h2 class="wp-block-title">Installation</h2>
+                <div class="wp-prose">${installHtml}</div>
+            </div>
+        `;
+
+        // =====================================================================
+        // Tab 4: Development (Contributors + Changelog)
+        // =====================================================================
+        const devContent = `
+            <div class="wp-section-block">
+                <h2 class="wp-block-title">Contributors &amp; Developers</h2>
+                <p class="wp-dev-text">\u201c${esc(pluginName)}\u201d has been translated into ${Math.max(contributorList.length * 3, 1)} locales. Thank you to <a href=\"#\">the translators</a> for their contributions.</p>
+                <p class="wp-dev-text"><a href=\"#\">Translate \u201c${esc(pluginName)}\u201d into your language.</a></p>
+            </div>
+            <div class="wp-section-block">
+                <h3 class="wp-dev-subtitle">Interested in development?</h3>
+                <p class="wp-dev-text"><a href=\"#\">Browse the code</a>, check out the <a href=\"#\">SVN repository</a>, or subscribe to the <a href=\"#\">development log</a> by <a href=\"#\">RSS</a>.</p>
+                <p class="wp-dev-text">You can also subscribe to emails for each plugin commit by <a href=\"#\">clicking here</a>.</p>
+            </div>
+            ${changelogHtml ? `
+            <div class="wp-section-block">
+                <h2 class="wp-block-title">Changelog</h2>
+                <div class="wp-prose">${changelogHtml}</div>
+            </div>` : ""}
+        `;
+
+        // --- Tab definitions ---
         const tabs = [
             { id: "details", label: "Details", content: detailsContent },
+            { id: "reviews", label: "Reviews", content: reviewsHtml },
+            { id: "installation", label: "Installation", content: installationContent },
+            { id: "development", label: "Development", content: devContent },
         ];
-        if (installHtml) tabs.push({ id: "installation", label: "Installation", content: `<div class="wp-section-block"><div class="wp-prose">${installHtml}</div></div>` });
-        tabs.push({ id: "development", label: "Development", content: `<p class="wp-prose" style="color:var(--text-dim)">Development information is not available in readme.txt previews.</p>` });
 
-        // --- Full layout ---
+        // =====================================================================
+        // Sidebar (shared across all tabs)
+        // =====================================================================
+
+        // Generate random rating data
+        const ratingCounts = [
+            Math.floor(Math.random() * 4000) + 500,   // 5 stars
+            Math.floor(Math.random() * 300) + 50,     // 4 stars
+            Math.floor(Math.random() * 150) + 20,     // 3 stars
+            Math.floor(Math.random() * 120) + 15,     // 2 stars
+            Math.floor(Math.random() * 500) + 30,     // 1 star
+        ];
+        const totalRatings = ratingCounts.reduce((a, b) => a + b, 0);
+        const weightedSum = ratingCounts.reduce((sum, count, i) => sum + count * (5 - i), 0);
+        const avgRating = (weightedSum / totalRatings).toFixed(1);
+        const maxCount = Math.max(...ratingCounts);
+
+        const ratingBarsHtml = [5, 4, 3, 2, 1].map((star, i) => {
+            const count = ratingCounts[i];
+            const pct = Math.round((count / maxCount) * 100);
+            const label = star === 1 ? "1 star" : `${star} stars`;
+            return `<div class="wp-rating-row">
+                <span class="wp-rating-label">${label}</span>
+                <div class="wp-rating-bar"><div class="wp-rating-fill" style="width: ${pct}%"></div></div>
+                <span class="wp-rating-count">${count.toLocaleString()}</span>
+            </div>`;
+        }).join("");
+
+        const fullStars = Math.floor(Number(avgRating));
+        const hasHalf = Number(avgRating) - fullStars >= 0.3;
+        const starsDisplay = "\u2605".repeat(fullStars) + (hasHalf ? "\u2606" : "") + "\u2606".repeat(Math.max(0, 5 - fullStars - (hasHalf ? 1 : 0)));
+
+        const sidebarHtml = `
+            <table class="wp-sidebar-table">
+                <tbody>${sidebarMetaHtml}</tbody>
+            </table>
+            ${tagsHtml ? `<div class="wp-sidebar-tags-row">
+                <span class="wp-sidebar-tags-label">Tags</span>
+                <div class="wp-tags">${tagsHtml}</div>
+            </div>` : ""}
+            <a href="#" class="wp-advanced-view">Advanced View</a>
+            <div class="wp-sidebar-block wp-ratings-block">
+                <h3 class="wp-sidebar-heading">Ratings</h3>
+                <div class="wp-rating-overview">
+                    <span class="wp-rating-stars-big">${starsDisplay}</span>
+                    <span class="wp-rating-score">${avgRating} out of 5 stars.</span>
+                </div>
+                <div class="wp-rating-bars">
+                    ${ratingBarsHtml}
+                </div>
+                <div class="wp-rating-actions">
+                    <a href="#" class="wp-rating-link">Your review</a>
+                    <a href="#" class="wp-rating-link">See all</a>
+                </div>
+            </div>
+            <div class="wp-sidebar-block">
+                <h3 class="wp-sidebar-heading">Support</h3>
+                <p class="wp-support-text">Got something to say? Need help?</p>
+                <p class="wp-support-link-block"><a href="#">View support forum</a></p>
+            </div>
+        `;
+
+        // =====================================================================
+        // Full page
+        // =====================================================================
         return `
             <div class="wp-plugin-page">
-                <!-- Plugin header -->
                 <div class="wp-plugin-head">
                     <div class="wp-plugin-icon">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg>
                     </div>
                     <div class="wp-plugin-head-info">
                         <h1 class="wp-plugin-name">${esc(data.name)}</h1>
-                        <p class="wp-plugin-author">By ${author ? `<a href="#">${esc(author)}</a>` : esc(contributors || "Unknown")}</p>
+                        <p class="wp-plugin-author">By <a href="#">${esc(author)}</a></p>
                     </div>
                     <div class="wp-plugin-actions">
                         <button class="wp-heart-btn" title="Favorite">
@@ -529,48 +762,21 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                         <a href="#" class="wp-download-btn">Download</a>
                     </div>
                 </div>
-
-                <!-- Tab bar -->
                 <nav class="wp-tab-nav">
-                    ${tabs.map((t, i) => `
-                        <button class="wp-tab-btn ${i === 0 ? 'is-active' : ''}" data-tab="${t.id}">${t.label}</button>
-                    `).join("")}
+                    ${tabs.map((t, i) => `<button class="wp-tab-btn ${i === 0 ? 'is-active' : ''}" data-tab="${t.id}">${t.label}</button>`).join("")}
                     <a href="#" class="wp-support-link">Support</a>
                 </nav>
-
-                <!-- Two-column body -->
                 <div class="wp-body">
                     <div class="wp-main">
                         <div class="wp-tab-panels">
                             ${tabs.map((t, i) => `
                                 <div class="wp-tab-panel ${i === 0 ? 'is-active' : ''}" data-panel="${t.id}">
-                                    <h2 class="wp-content-title">Description</h2>
                                     <div class="wp-prose">${t.content}</div>
                                 </div>
                             `).join("")}
                         </div>
                     </div>
-                    <aside class="wp-sidebar">
-                        <table class="wp-sidebar-table">
-                            <tbody>
-                                ${sidebarMetaHtml}
-                            </tbody>
-                        </table>
-                        ${tagsHtml ? `<div class="wp-sidebar-block">
-                            <h3 class="wp-sidebar-heading">Tags</h3>
-                            <div class="wp-tags">${tagsHtml}</div>
-                        </div>` : ""}
-                        <div class="wp-sidebar-block">
-                            <h3 class="wp-sidebar-heading"> Ratings </h3>
-                            <p class="wp-rating-text">No reviews have been submitted yet.</p>
-                            <p class="wp-rating-link"><a href="#">Your review</a></p>
-                        </div>
-                        <div class="wp-sidebar-block">
-                            <h3 class="wp-sidebar-heading"> Support </h3>
-                            <p class="wp-support-text">Got something to say? Need help?</p>
-                            <p class="wp-support-link-block"><a href="#">View support forum</a></p>
-                        </div>
-                    </aside>
+                    <aside class="wp-sidebar">${sidebarHtml}</aside>
                 </div>
             </div>
         `;
@@ -584,26 +790,30 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     }
 
     // ---------------------------------------------------------------------------
-    // Tab switching
+    // Tab switching (event delegation on document)
     // ---------------------------------------------------------------------------
-    function setupTabs() {
-        const buttons = previewContent.querySelectorAll(".wp-tab-btn");
-        const panels = previewContent.querySelectorAll(".wp-tab-panel");
+    document.addEventListener("click", (e) => {
+        const target = e.target as Element;
+        const btn = target.closest(".wp-tab-btn") as HTMLElement | null;
+        if (!btn) return;
+        const tab = btn.getAttribute("data-tab");
+        if (!tab) return;
 
-        buttons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const tab = btn.getAttribute("data-tab");
-                buttons.forEach(b => b.classList.remove("is-active"));
-                panels.forEach(p => p.classList.remove("is-active"));
-                btn.classList.add("is-active");
-                previewContent.querySelector(`[data-panel="${tab}"]`)?.classList.add("is-active");
-            });
-        });
-    }
+        e.preventDefault();
 
-    // Observe new content for tab setup
-    const observer = new MutationObserver(() => setupTabs());
-    observer.observe(previewContent, { childList: true, subtree: true });
+        // Find the parent rendered container
+        const container = btn.closest(".readme-rendered") || btn.closest(".wp-plugin-page") || previewContent;
+        if (!container) return;
+
+        // Deactivate all buttons and panels
+        container.querySelectorAll(".wp-tab-btn").forEach(b => b.classList.remove("is-active"));
+        container.querySelectorAll(".wp-tab-panel").forEach(p => p.classList.remove("is-active"));
+
+        // Activate the clicked one
+        btn.classList.add("is-active");
+        const panel = container.querySelector(`[data-panel="${tab}"]`);
+        if (panel) panel.classList.add("is-active");
+    });
 
     // ---------------------------------------------------------------------------
     // Event listeners
@@ -645,4 +855,85 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     textarea.addEventListener("paste", () => {
         setTimeout(updatePreview, 50);
     });
+
+    // ---------------------------------------------------------------------------
+    // Resizable split pane
+    // ---------------------------------------------------------------------------
+    const handle = document.getElementById("resize-handle");
+    const editorPanel = document.getElementById("editor-panel");
+    const previewPanel = document.getElementById("preview-panel");
+    const appLayout = document.getElementById("app-layout");
+
+    if (handle && editorPanel && previewPanel && appLayout) {
+        const STORAGE_KEY = "wpreadme-split-width";
+        let dragging = false;
+        let startX = 0;
+        let startWidth = 0;
+
+        // Restore saved width on load
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const w = parseInt(saved, 10);
+                if (w >= 200 && w <= window.innerWidth - 200) {
+                    editorPanel.style.width = w + "px";
+                    editorPanel.style.flexShrink = "0";
+                }
+            }
+        } catch (e) { /* localStorage unavailable */ }
+
+        function saveWidth() {
+            try {
+                const w = Math.round(editorPanel.getBoundingClientRect().width);
+                localStorage.setItem(STORAGE_KEY, String(w));
+            } catch (e) { /* localStorage unavailable */ }
+        }
+
+        function onDragStart(clientX) {
+            dragging = true;
+            startX = clientX;
+            startWidth = editorPanel.getBoundingClientRect().width;
+            handle.classList.add("drag");
+            document.body.style.cursor = "col-resize";
+            document.body.style.userSelect = "none";
+        }
+
+        function onDragMove(clientX) {
+            if (!dragging) return;
+            const dx = clientX - startX;
+            const layoutWidth = appLayout.getBoundingClientRect().width;
+            const handleWidth = handle.getBoundingClientRect().width;
+            const min = 200;
+            const max = layoutWidth - 200 - handleWidth;
+            const newWidth = Math.min(max, Math.max(min, startWidth + dx));
+            editorPanel.style.width = newWidth + "px";
+            editorPanel.style.flexShrink = "0";
+        }
+
+        function onDragEnd() {
+            if (!dragging) return;
+            dragging = false;
+            handle.classList.remove("drag");
+            document.body.style.cursor = "";
+            document.body.style.userSelect = "";
+            saveWidth();
+        }
+
+        // Mouse events
+        handle.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            onDragStart(e.clientX);
+        });
+        document.addEventListener("mousemove", (e) => onDragMove(e.clientX));
+        document.addEventListener("mouseup", onDragEnd);
+
+        // Touch events
+        handle.addEventListener("touchstart", (e) => {
+            onDragStart(e.touches[0].clientX);
+        }, {passive: true});
+        document.addEventListener("touchmove", (e) => {
+            onDragMove(e.touches[0].clientX);
+        }, {passive: true});
+        document.addEventListener("touchend", onDragEnd);
+    }
 </script>
