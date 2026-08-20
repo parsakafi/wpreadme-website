@@ -12,11 +12,11 @@ Lets admins set an Iran Post (Post BarCode) tracking code from the WooCommerce o
 
 == Description ==
 
-### Jetexir Iran Post Tracking ###
+### Jetexir Iran Post
 
-Jetexir Iran Post Tracking is a lightweight add-on for the [Jetexir](https://parsa.ws) WooCommerce plugin that adds Iran Post shipping tracking to your store. It lets shop managers enter a **post tracking code** directly on the WooCommerce admin order detail screen, saves it as order meta, and (optionally) e-mails the customer a tracking link when the code is set or changed.
+Jetexir Iran Post is a lightweight add-on for the [Jetexir](https://wordpress.org/plugins/jetexir) WooCommerce plugin that adds Iran Post shipping tracking to your store. It lets shop managers enter a **post tracking code** directly on the WooCommerce admin order detail screen, saves it as order meta, and (optionally) e-mails the customer a tracking link when the code is set or changed.
 
-The add-on appears in **Jetexir → Addons** (Order category) and is toggleable like any other Jetexir add-on.
+The config of add-on appears in **Jetexir → Order → Iran Post**.
 
 = Key Features =
 
@@ -56,9 +56,9 @@ When a tracking URL is configured (or the default Iran Post radar URL is used), 
 
 1. In your WordPress dashboard, go to **Plugins → Add New**.
 2. Upload the `jetexir-iran-post` plugin zip, or place the folder in `wp-content/plugins/`.
-3. Activate **Jetexir Iran Post Tracking**.
+3. Activate **Jetexir Iran Post**.
 4. Make sure **Jetexir** and **WooCommerce** are active.
-5. Go to **Jetexir → Addons**, find **Iran Post Tracking** (Order category) and enable it.
+5. Go to **Jetexir → Addons**, find **Iran Post** (Order category) and enable it.
 
 = Manual installation =
 
