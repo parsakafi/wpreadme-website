@@ -449,9 +449,10 @@ const {title, description, current, image, robots} = Astro.props;
             background: rgba(255,255,255,0.08);
         }
 
-        /* Editor toolbar buttons (upload, example, clear) dark mode */
+        /* Editor toolbar buttons (upload, example, download, clear) dark mode */
         html[data-theme="dark"] .upload-btn,
         html[data-theme="dark"] .example-btn,
+        html[data-theme="dark"] .download-btn,
         html[data-theme="dark"] .clear-btn {
             color: var(--text-dim);
             border-color: var(--border);
@@ -459,6 +460,7 @@ const {title, description, current, image, robots} = Astro.props;
 
         html[data-theme="dark"] .upload-btn:hover,
         html[data-theme="dark"] .example-btn:hover,
+        html[data-theme="dark"] .download-btn:hover,
         html[data-theme="dark"] .clear-btn:hover {
             color: #5b8def;
             border-color: #5b8def;
