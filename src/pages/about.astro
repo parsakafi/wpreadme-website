@@ -10,7 +10,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             <h1 class="page-title">About WPReadme Preview</h1>
             <p class="page-subtitle">
                 A free online tool to preview your WordPress plugin readme.txt file before publishing it to the plugin
-                directory.
+                directory. See exactly how it will look on WordPress.org.
             </p>
         </div>
     </section>
@@ -28,26 +28,94 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <p>
             The WordPress plugin directory uses a specific readme.txt format. Formatting mistakes, such as broken links,
             missing sections, or malformed headers, can make your plugin listing look unprofessional or cause it to
-            be rejected during review. With WPReadme Preview, you can catch before they go live.
+            be rejected during review. With WPReadme Preview, you can catch these issues before they go live.
         </p>
 
-        <h2>How it works</h2>
-        <p>
-            Simply paste your readme.txt content into the editor on the home page, or upload a readme.txt file.
-            The preview updates instantly, showing you a rendering that closely matches what visitors see on
-            the WordPress.org plugin directory.
-        </p>
+        <h2>Features</h2>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                </div>
+                <h3>Live Preview</h3>
+                <p>Paste or type your readme.txt content and see the preview update instantly in real time.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <h3>Upload &amp; Download</h3>
+                <p>Upload your existing readme.txt file or download the edited version after making changes.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                </div>
+                <h3>Example Files</h3>
+                <p>Load pre-built example readme.txt files to see how different plugins are formatted.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3>Readme Validator</h3>
+                <p>Auto-validates your readme.txt against WordPress.org requirements with a circular progress bar and categorized tips for Required, Recommended, and Optional checks.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <h3>WordPress.org Layout</h3>
+                <p>Preview matches the official plugin directory layout with tabs for Details, Reviews, Installation, and Development.</p>
+            </div>
+        </div>
 
         <h2>Supported readme.txt sections</h2>
         <ul>
-            <li><strong>Header</strong>, plugin name, contributors, tags, requirements, license, and short description
-            </li>
+            <li><strong>Header</strong>, plugin name, contributors, tags, requirements, license, and short description</li>
             <li><strong>Description</strong>, full plugin description with markdown support</li>
             <li><strong>Installation</strong>, setup instructions and requirements</li>
             <li><strong>Frequently Asked Questions</strong>, parsed as expandable Q&amp;A items</li>
             <li><strong>Screenshots</strong>, captioned screenshot list</li>
             <li><strong>Changelog</strong>, version history entries</li>
         </ul>
+
+        <h2>Validator checks</h2>
+        <p>
+            The built-in validator checks your readme.txt against WordPress.org standards, organized into three categories:
+        </p>
+        <ul>
+            <li><strong>Required</strong>, Plugin Name, Contributors, Tags, Stable Tag, License, Short Description, Description, Changelog, File Size</li>
+            <li><strong>Recommended</strong>, Requires at least, Tested up to, Installation section</li>
+            <li><strong>Optional</strong>, Requires PHP, FAQ section, Screenshots, Donate link</li>
+        </ul>
+        <p>
+            Each failed check includes a tip with the exact line to add and a link to the relevant WordPress.org documentation.
+        </p>
 
         <h2>Format reference</h2>
         <p>
@@ -57,6 +125,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                developer.wordpress.org
             </a>.
         </p>
+    </section>
+
+    <section class="cta-section">
+        <div class="container cta-container">
+            <div class="cta-content">
+                <h2 class="cta-title">Enjoying WPReadme Preview?</h2>
+                <p class="cta-text">
+                    This tool is free to use. If you find it helpful for your WordPress plugin development,
+                    consider supporting its continued development and maintenance.
+                </p>
+            </div>
+            <a href="/donate" class="cta-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span>Support the Project</span>
+            </a>
+        </div>
     </section>
 </BaseLayout>
 
@@ -83,14 +169,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     }
 
     .content {
-        max-width: 46rem;
+        max-width: 52rem;
         padding-bottom: 4rem;
     }
 
     .content h2 {
         font-size: 1.4rem;
-        margin: 2rem 0 0.8rem;
+        margin: 2.5rem 0 0.8rem;
         letter-spacing: -0.01em;
+    }
+
+    .content h2:first-of-type {
+        margin-top: 2rem;
     }
 
     .content p {
@@ -115,5 +205,116 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         padding: 0.15em 0.4em;
         border-radius: 4px;
         font-size: 0.9em;
+    }
+
+    /* --- Features grid --- */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin: 1.5rem 0 2rem;
+    }
+
+    .feature-card {
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card-bg);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--icon-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.85rem;
+        color: var(--primary);
+    }
+
+    .feature-card h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0 0 0.4rem;
+        color: var(--text);
+    }
+
+    .feature-card p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* --- CTA section --- */
+    .cta-section {
+        padding: 3rem 0 4.5rem;
+    }
+
+    .cta-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 2.5rem 3rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+    }
+
+    .cta-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        color: var(--text);
+    }
+
+    .cta-text {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0;
+        max-width: 32rem;
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.6rem;
+        border-radius: 10px;
+        background: #d63638;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: background 0.2s, transform 0.15s;
+    }
+
+    .cta-button:hover {
+        background: #b32d2e;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 640px) {
+        .cta-container {
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .cta-text {
+            max-width: 100%;
+        }
     }
 </style>
