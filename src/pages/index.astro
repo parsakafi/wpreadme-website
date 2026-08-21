@@ -29,6 +29,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                         </svg>
                         <span>Download</span>
                     </button>
+                    <button class="download-btn" type="button" id="download-md" title="Download as Markdown">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <span>MD</span>
+                    </button>
                     <input type="file" id="file-upload" accept=".txt,text/plain" hidden>
                     <button class="example-btn" type="button" id="load-example" title="Load example readme.txt">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -270,6 +279,7 @@ The preview will update instantly."></textarea>
         border-color: #d63638;
         background: rgba(214, 54, 56, 0.08);
     }
+
     .validator-toggle.has-warnings {
         color: #db8617;
         border-color: #db8617;
@@ -1753,6 +1763,94 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     const HEADER_ORDER = ["contributors", "donate link", "tags", "requires at least", "tested up to", "requires php", "stable tag", "license", "license uri"];
     const SECTION_ORDER = ["description", "installation", "frequently asked questions", "screenshots", "changelog"];
 
+    // ---------------------------------------------------------------------------
+    // Convert WordPress readme.txt format to standard Markdown
+    // ---------------------------------------------------------------------------
+    function readmeToMarkdown(raw) {
+        const text = raw.replace(/\r\n?/g, "\n");
+        const lines = text.split("\n");
+        const md = [];
+        let inHeaders = true;
+        let pastName = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const trimmed = line.trim();
+
+            // === Plugin Name ===  →  # Plugin Name
+            if (trimmed.startsWith("=== ") && trimmed.endsWith(" ===")) {
+                const name = trimmed.slice(4, -4).trim();
+                md.push(`# ${name}`);
+                md.push("");
+                pastName = true;
+                inHeaders = true;
+                continue;
+            }
+
+            // == Section ==  →  ## Section
+            if (trimmed.startsWith("== ") && trimmed.endsWith(" ==")) {
+                const section = trimmed.slice(3, -3).trim();
+                md.push("");
+                md.push(`## ${section}`);
+                md.push("");
+                inHeaders = false;
+                continue;
+            }
+
+            // = Sub-section =  →  ### Sub-section
+            if (trimmed.startsWith("= ") && trimmed.endsWith(" =") && trimmed.length > 4) {
+                const sub = trimmed.slice(2, -2).trim();
+                md.push("");
+                md.push(`### ${sub}`);
+                md.push("");
+                continue;
+            }
+
+            // Header lines: Key: Value  →  **Key:** Value  (each on its own line with blank line after)
+            if (inHeaders) {
+                const ci = trimmed.indexOf(":");
+                if (ci > 0 && ci < 80 && trimmed.slice(0, ci).trim().length > 0 && pastName) {
+                    const key = trimmed.slice(0, ci).trim();
+                    const val = trimmed.slice(ci + 1).trim();
+                    if (val) {
+                        md.push(`**${key}:** ${val}`);
+                    } else {
+                        md.push(`**${key}:**`);
+                    }
+                    md.push("");
+                    continue;
+                }
+                // Empty lines between name and headers: skip
+                if (pastName && trimmed.length === 0) continue;
+                // Non-header non-empty line means we left headers (short description)
+                if (pastName && trimmed.length > 0) {
+                    inHeaders = false;
+                    md.push(line);
+                    md.push("");
+                    continue;
+                }
+            }
+
+            // Everything else passes through as-is
+            md.push(line);
+        }
+
+        // Clean up: remove excessive blank lines (more than 2 consecutive)
+        const result = [];
+        let blankCount = 0;
+        for (const line of md) {
+            if (line.trim() === "") {
+                blankCount++;
+                if (blankCount <= 2) result.push("");
+            } else {
+                blankCount = 0;
+                result.push(line);
+            }
+        }
+
+        return result.join("\n").trim() + "\n";
+    }
+
     function insertReadmeContent(textarea, insertText, insertType) {
         const raw = textarea.value;
         const lines = raw.replace(/\r\n?/g, "\n").split("\n");
@@ -2122,6 +2220,23 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             const a = document.createElement("a");
             a.href = url;
             a.download = "readme.txt";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Download as Markdown
+        const downloadMdBtn = document.getElementById("download-md");
+        downloadMdBtn?.addEventListener("click", () => {
+            const content = textarea.value;
+            if (!content.trim()) return;
+            const md = readmeToMarkdown(content);
+            const blob = new Blob([md], {type: "text/markdown"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "readme.md";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
