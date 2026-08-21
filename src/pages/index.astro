@@ -54,6 +54,33 @@ Or click the Upload button to load a file.
 The preview will update instantly."></textarea>
             <div class="editor-footer">
                 <span id="char-count" class="char-count">0 characters</span>
+                <button class="validator-toggle" id="validator-toggle" type="button" title="Readme validator">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span>Validator</span>
+                </button>
+            </div>
+            <div class="validator-panel" id="validator-panel" style="display:none">
+                <div class="validator-header">
+                    <div class="validator-progress-ring" id="progress-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="ring-bg" cx="50" cy="50" r="42"/>
+                            <circle class="ring-fill" cx="50" cy="50" r="42" id="ring-fill"/>
+                        </svg>
+                        <div class="ring-text" id="ring-text">
+                            <span class="ring-pct">0%</span>
+                            <span class="ring-label">Complete</span>
+                        </div>
+                    </div>
+                    <div class="validator-summary" id="validator-summary">
+                        <span class="summary-title">Readme Quality</span>
+                        <span class="summary-sub">Add content to start validating</span>
+                    </div>
+                </div>
+                <div class="validator-checklist" id="validator-checklist"></div>
             </div>
         </aside>
 
@@ -72,13 +99,16 @@ The preview will update instantly."></textarea>
                         <span class="status-text">Enter content to preview</span>
                     </div>
                     <button class="maximize-btn" id="maximize-btn" title="Maximize preview">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-expand">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-expand">
                             <polyline points="15 3 21 3 21 9"/>
                             <polyline points="9 21 3 21 3 15"/>
                             <line x1="21" y1="3" x2="14" y2="10"/>
                             <line x1="3" y1="21" x2="10" y2="14"/>
                         </svg>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-minimize" style="display:none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-minimize"
+                             style="display:none">
                             <polyline points="4 14 10 14 10 20"/>
                             <polyline points="20 10 14 10 14 4"/>
                             <line x1="14" y1="10" x2="21" y2="3"/>
@@ -105,7 +135,7 @@ The preview will update instantly."></textarea>
     </div>
 </BaseLayout>
 
-<style>
+<style is:global>
     .app-layout {
         display: flex;
         height: calc(100vh - var(--header-height, 68px));
@@ -204,6 +234,285 @@ The preview will update instantly."></textarea>
 
     .char-count {
         font-size: 0.75rem;
+        color: var(--text-dim);
+    }
+
+    /* --- Validator toggle button --- */
+    .validator-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-dim);
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .validator-toggle:hover {
+        color: var(--primary);
+        border-color: var(--primary);
+        background: var(--icon-bg);
+    }
+
+    .validator-toggle.active {
+        color: #16a34a;
+        border-color: #16a34a;
+        background: rgba(22, 163, 74, 0.08);
+    }
+
+    .validator-toggle.has-errors {
+        color: #d63638;
+        border-color: #d63638;
+        background: rgba(214, 54, 56, 0.08);
+    }
+    .validator-toggle.has-warnings {
+        color: #db8617;
+        border-color: #db8617;
+        background: rgba(219, 134, 23, 0.08);
+    }
+
+    /* --- Validator panel --- */
+    .validator-panel {
+        border-top: 1px solid var(--border);
+        background: var(--card-bg);
+        max-height: 320px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    .validator-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* --- Circular progress ring --- */
+    .validator-progress-ring {
+        width: 64px;
+        height: 64px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .validator-progress-ring svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 6;
+    }
+
+    .ring-fill {
+        fill: none;
+        stroke: #16a34a;
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 263.9;
+        stroke-dashoffset: 263.9;
+        transition: stroke-dashoffset 0.6s ease, stroke 0.3s;
+    }
+
+    .ring-fill.warn {
+        stroke: #dba617;
+    }
+
+    .ring-fill.bad {
+        stroke: #d63638;
+    }
+
+    .ring-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ring-pct {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1;
+    }
+
+    .ring-label {
+        font-size: 0.55rem;
+        color: var(--text-dim);
+        margin-top: 2px;
+    }
+
+    /* --- Validator summary --- */
+    .validator-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .summary-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .summary-sub {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+    }
+
+    /* --- Checklist --- */
+    .validator-checklist {
+        padding: 0.5rem;
+    }
+
+    /* Category group */
+    .check-group {
+        padding: 0 1.25rem;
+    }
+
+    .check-group-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0 0.25rem;
+        flex-wrap: wrap;
+    }
+
+    .check-group-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+    }
+
+    .check-group-count {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--text-dim);
+        background: var(--icon-bg);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+    }
+
+    .check-group-desc {
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        width: 100%;
+    }
+
+    /* Check item */
+    .check-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+    }
+
+    .check-item:last-child {
+        border-bottom: none;
+    }
+
+    .check-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .check-icon.pass {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .check-icon.fail {
+        background: #fee2e2;
+        color: #d63638;
+    }
+
+    .check-icon.warn {
+        background: #fef9c3;
+        color: #a16207;
+    }
+
+    .check-icon.info {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .check-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .check-label {
+        font-size: 0.78rem;
+        color: var(--text);
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Red highlight for failed required items */
+    .check-group:first-child .check-failed .check-label {
+        color: #d63638;
+    }
+
+    .check-detail {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        margin-top: 1px;
+    }
+
+    .check-detail a {
+        color: #5b8def;
+        text-decoration: underline;
+    }
+
+    /* Tip box */
+    .check-tip {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.35rem;
+        width: 100%;
+        margin: 0.25rem 0 0 1.5rem;
+        padding: 0.4rem 0.55rem;
+        background: rgba(56, 89, 233, 0.06);
+        border-left: 2px solid #3858e9;
+        border-radius: 0 4px 4px 0;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        white-space: pre-line;
+    }
+
+    .check-tip svg {
+        flex-shrink: 0;
+        margin-top: 1px;
+        color: #3858e9;
+    }
+
+    /* Passed items subtle */
+    .check-passed .check-label {
         color: var(--text-dim);
     }
 
@@ -424,6 +733,7 @@ The preview will update instantly."></textarea>
     // ---------------------------------------------------------------------------
     const EXAMPLE_README = `=== My Awesome Plugin ===
 Contributors: developername
+Donate link: https://your-site.com/donate
 Tags: plugin, woocommerce, ecommerce
 Requires at least: 6.0
 Tested up to: 6.6
@@ -651,26 +961,186 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
 
         // Tab 2: Reviews
         const allReviews = [
-            { user: "sarahj", stars: 5, title: "Very useful and easy to set up", date: "August 15, 2026", replies: 1, color: "blue", text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!" },
-            { user: "mike_dev", stars: 5, title: "Excellent developer support", date: "August 3, 2026", replies: 1, color: "green", text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support." },
-            { user: "alexweb", stars: 4, title: "Good plugin, minor UI improvements needed", date: "July 28, 2026", replies: 1, color: "orange", text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates." },
-            { user: "jenny_l", stars: 5, title: "Must-have for any WordPress site", date: "July 20, 2026", replies: 1, color: "blue", text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it." },
-            { user: "webcraft", stars: 5, title: "Clean code, great performance", date: "July 12, 2026", replies: 1, color: "green", text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem." },
-            { user: "theme_fan", stars: 5, title: "Best plugin in its category", date: "June 30, 2026", replies: 1, color: "blue", text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed." },
-            { user: "wp_beginner", stars: 5, title: "Perfect for beginners and pros alike", date: "June 22, 2026", replies: 1, color: "green", text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now." },
-            { user: "code_master", stars: 4, title: "Solid implementation, a few feature requests", date: "June 15, 2026", replies: 1, color: "orange", text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature." },
-            { user: "shop_owner", stars: 5, title: "Increased my conversions significantly", date: "June 8, 2026", replies: 1, color: "blue", text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now." },
-            { user: "design_pro", stars: 5, title: "Beautiful integration with any theme", date: "May 28, 2026", replies: 1, color: "green", text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one." },
-            { user: "dev_ops", stars: 5, title: "Lightweight and well documented", date: "May 20, 2026", replies: 1, color: "blue", text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended." },
-            { user: "small_biz", stars: 5, title: "Exactly what I needed", date: "May 15, 2026", replies: 1, color: "green", text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!" },
-            { user: "freelancer_joe", stars: 4, title: "Great value for a free plugin", date: "May 8, 2026", replies: 1, color: "orange", text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy." },
-            { user: "blog_writer", stars: 5, title: "Made my blog look professional", date: "April 30, 2026", replies: 1, color: "blue", text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel." },
-            { user: "ecommerce_pro", stars: 4, title: "Essential for any WooCommerce store", date: "April 22, 2026", replies: 1, color: "green", text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it." },
-            { user: "plugin_reviewer", stars: 5, title: "Top tier quality and support", date: "April 15, 2026", replies: 1, color: "blue", text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features." },
-            { user: "agency_lead", stars: 5, title: "We deploy this on all client sites", date: "April 8, 2026", replies: 1, color: "green", text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue." },
-            { user: "site_builder", stars: 4, title: "Very capable, needs more hooks", date: "March 30, 2026", replies: 1, color: "orange", text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases." },
-            { user: "store_manager", stars: 5, title: "My customers love the new features", date: "March 22, 2026", replies: 1, color: "blue", text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store." },
-            { user: "wp_enthusiast", stars: 5, title: "Outstanding plugin, five stars well earned", date: "March 15, 2026", replies: 1, color: "green", text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used." },
+            {
+                user: "sarahj",
+                stars: 5,
+                title: "Very useful and easy to set up",
+                date: "August 15, 2026",
+                replies: 1,
+                color: "blue",
+                text: "Simple, reliable, and easy to configure. This plugin does exactly what it promises without any bloat. Installed it on three client sites already and everything works perfectly. Highly recommended!"
+            },
+            {
+                user: "mike_dev",
+                stars: 5,
+                title: "Excellent developer support",
+                date: "August 3, 2026",
+                replies: 1,
+                color: "green",
+                text: "Had a small compatibility issue with my theme and the developer responded within hours with a fix. The plugin itself is lightweight and well-coded. Five stars for both the product and the support."
+            },
+            {
+                user: "alexweb",
+                stars: 4,
+                title: "Good plugin, minor UI improvements needed",
+                date: "July 28, 2026",
+                replies: 1,
+                color: "orange",
+                text: "The core functionality is solid and works as described. Took one star off because the settings page could use a better layout, but the features themselves are top-notch. Looking forward to future updates."
+            },
+            {
+                user: "jenny_l",
+                stars: 5,
+                title: "Must-have for any WordPress site",
+                date: "July 20, 2026",
+                replies: 1,
+                color: "blue",
+                text: "I have been using this plugin for months now and it has saved me countless hours. The documentation is clear, the code is clean, and it integrates seamlessly with my existing setup. Absolutely worth it."
+            },
+            {
+                user: "webcraft",
+                stars: 5,
+                title: "Clean code, great performance",
+                date: "July 12, 2026",
+                replies: 1,
+                color: "green",
+                text: "As a developer, I appreciate how well this plugin is built. No unnecessary database queries, proper hooks and filters, and excellent compatibility with popular page builders. A rare find in the WordPress ecosystem."
+            },
+            {
+                user: "theme_fan",
+                stars: 5,
+                title: "Best plugin in its category",
+                date: "June 30, 2026",
+                replies: 1,
+                color: "blue",
+                text: "I have tried many similar plugins and this one stands out. The features are well thought out, performance is excellent, and it works out of the box with minimal configuration. Very impressed."
+            },
+            {
+                user: "wp_beginner",
+                stars: 5,
+                title: "Perfect for beginners and pros alike",
+                date: "June 22, 2026",
+                replies: 1,
+                color: "green",
+                text: "Even as someone new to WordPress, I found this plugin incredibly easy to set up. The interface is intuitive and the default settings work great. My site looks so much better now."
+            },
+            {
+                user: "code_master",
+                stars: 4,
+                title: "Solid implementation, a few feature requests",
+                date: "June 15, 2026",
+                replies: 1,
+                color: "orange",
+                text: "Well-built plugin with clean code. Would love to see REST API support in a future version, but what is there now works flawlessly. Deducting one star only for the missing feature."
+            },
+            {
+                user: "shop_owner",
+                stars: 5,
+                title: "Increased my conversions significantly",
+                date: "June 8, 2026",
+                replies: 1,
+                color: "blue",
+                text: "After installing this plugin my conversion rate went up noticeably. The features are exactly what my online store needed. Customers have commented on how much better the site feels now."
+            },
+            {
+                user: "design_pro",
+                stars: 5,
+                title: "Beautiful integration with any theme",
+                date: "May 28, 2026",
+                replies: 1,
+                color: "green",
+                text: "What I love most is how seamlessly this integrates with any theme. No CSS overrides needed, no conflicts with other plugins. It just works and looks professional from day one."
+            },
+            {
+                user: "dev_ops",
+                stars: 5,
+                title: "Lightweight and well documented",
+                date: "May 20, 2026",
+                replies: 1,
+                color: "blue",
+                text: "Rare to find a plugin that is both feature-rich and lightweight. The documentation is thorough, hooks are well documented, and the codebase is a pleasure to work with. Highly recommended."
+            },
+            {
+                user: "small_biz",
+                stars: 5,
+                title: "Exactly what I needed",
+                date: "May 15, 2026",
+                replies: 1,
+                color: "green",
+                text: "I run a small business and this plugin solved all the problems I was having. Setup took less than 5 minutes and everything has been running smoothly since. Great work!"
+            },
+            {
+                user: "freelancer_joe",
+                stars: 4,
+                title: "Great value for a free plugin",
+                date: "May 8, 2026",
+                replies: 1,
+                color: "orange",
+                text: "For a free plugin, the quality is outstanding. I use it on client projects regularly. Only minor complaint is that some advanced settings could be more clearly labeled. Overall very happy."
+            },
+            {
+                user: "blog_writer",
+                stars: 5,
+                title: "Made my blog look professional",
+                date: "April 30, 2026",
+                replies: 1,
+                color: "blue",
+                text: "My blog went from looking generic to truly professional after installing this. The customization options are fantastic and I love that everything is configurable from the admin panel."
+            },
+            {
+                user: "ecommerce_pro",
+                stars: 4,
+                title: "Essential for any WooCommerce store",
+                date: "April 22, 2026",
+                replies: 1,
+                color: "green",
+                text: "If you run a WooCommerce store, this plugin is a must-have. The features complement WooCommerce perfectly and the performance impact is negligible. Can not imagine running my store without it."
+            },
+            {
+                user: "plugin_reviewer",
+                stars: 5,
+                title: "Top tier quality and support",
+                date: "April 15, 2026",
+                replies: 1,
+                color: "blue",
+                text: "As someone who reviews WordPress plugins professionally, I can say this is one of the best I have seen. Clean code, excellent documentation, responsive support, and genuinely useful features."
+            },
+            {
+                user: "agency_lead",
+                stars: 5,
+                title: "We deploy this on all client sites",
+                date: "April 8, 2026",
+                replies: 1,
+                color: "green",
+                text: "Our agency has standardized on this plugin for all our WordPress projects. It saves us development time, our clients love the results, and we have never had a single compatibility issue."
+            },
+            {
+                user: "site_builder",
+                stars: 4,
+                title: "Very capable, needs more hooks",
+                date: "March 30, 2026",
+                replies: 1,
+                color: "orange",
+                text: "The plugin does a lot right out of the box. For developers who want to customize further, a few more action and filter hooks would be welcome. But as-is, it covers 90% of use cases."
+            },
+            {
+                user: "store_manager",
+                stars: 5,
+                title: "My customers love the new features",
+                date: "March 22, 2026",
+                replies: 1,
+                color: "blue",
+                text: "Ever since I installed this plugin, I have gotten positive feedback from customers about the improved shopping experience. The features are exactly what was missing from my store."
+            },
+            {
+                user: "wp_enthusiast",
+                stars: 5,
+                title: "Outstanding plugin, five stars well earned",
+                date: "March 15, 2026",
+                replies: 1,
+                color: "green",
+                text: "This plugin delivers on every promise. The features are polished, the code is clean, and the developer clearly cares about quality. One of the best WordPress plugins I have ever used."
+            },
         ];
 
         const shuffled = [...allReviews].sort(() => Math.random() - 0.5);
@@ -857,6 +1327,10 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     // ---------------------------------------------------------------------------
     function updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount) {
         const raw = textarea.value.trim();
+
+        // Always run validator
+        runValidator(raw);
+
         if (!raw) {
             previewEmpty.style.display = "flex";
             const rendered = previewContent.querySelectorAll(".readme-rendered");
@@ -891,6 +1365,317 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         }
 
         charCount.textContent = `${textarea.value.length.toLocaleString()} characters`;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Validator
+    // ---------------------------------------------------------------------------
+    const CIRC = 2 * Math.PI * 42; // circumference for r=42
+
+    function runValidator(raw) {
+        const panel = document.getElementById("validator-panel");
+        const checklist = document.getElementById("validator-checklist");
+        const ringFill = document.getElementById("ring-fill");
+        const ringPct = document.querySelector(".ring-pct");
+        const ringLabel = document.querySelector(".ring-label");
+        const summarySub = document.querySelector(".summary-sub");
+        const toggleBtn = document.getElementById("validator-toggle");
+        if (!panel || !checklist || !ringFill) return;
+
+        if (!raw) {
+            checklist.innerHTML = "";
+            ringFill.style.strokeDashoffset = CIRC;
+            ringPct.textContent = "0%";
+            ringLabel.textContent = "Complete";
+            ringFill.className.baseVal = "ring-fill";
+            if (summarySub) summarySub.textContent = "Add content to start validating";
+            if (toggleBtn) {
+                toggleBtn.classList.remove("active");
+                toggleBtn.classList.remove("has-errors");
+            }
+            panel.style.display = "none";
+            return;
+        }
+
+        const checks = validateReadme(raw);
+        const passed = checks.filter(c => c.status === "pass").length;
+        const total = checks.length;
+        const pct = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+        // Count failures by category
+        const requiredFailed = checks.filter(c => c.category === "required" && c.status !== "pass").length;
+        const otherFailed = checks.filter(c => c.category !== "required" && c.status !== "pass").length;
+
+        // Update ring
+        const offset = CIRC - (pct / 100) * CIRC;
+        ringFill.style.strokeDashoffset = offset;
+        ringPct.textContent = pct + "%";
+        if (pct >= 80) {
+            ringFill.className.baseVal = "ring-fill";
+            ringLabel.textContent = "Great!";
+            if (summarySub) summarySub.textContent = `${passed}/${total} checks passed`;
+        } else if (pct >= 50) {
+            ringFill.className.baseVal = "ring-fill warn";
+            ringLabel.textContent = "Good";
+            if (summarySub) summarySub.textContent = `${total - passed} items to improve`;
+        } else {
+            ringFill.className.baseVal = "ring-fill bad";
+            ringLabel.textContent = "Needs work";
+            if (summarySub) summarySub.textContent = `${total - passed} items to improve`;
+        }
+
+        // Button color: red if required missing, orange if only recommended/optional missing, green if all pass
+        if (toggleBtn) {
+            toggleBtn.classList.remove("active", "has-errors", "has-warnings");
+            if (requiredFailed > 0) {
+                toggleBtn.classList.add("has-errors");
+            } else if (otherFailed > 0) {
+                toggleBtn.classList.add("has-warnings");
+            } else if (total > 0) {
+                toggleBtn.classList.add("active");
+            }
+        }
+
+        // Auto-show panel when there are failures
+        const anyFailed = requiredFailed + otherFailed > 0;
+        panel.style.display = anyFailed ? "block" : "none";
+
+        // Group by category
+        const groups = [
+            {key: "required", title: "Required", desc: "Must pass for WordPress.org approval"},
+            {key: "recommended", title: "Recommended", desc: "Strongly suggested for a better plugin page"},
+            {key: "optional", title: "Optional", desc: "Nice to have for completeness"},
+        ];
+
+        checklist.innerHTML = groups.map(g => {
+            const items = checks.filter(c => c.category === g.key);
+            if (items.length === 0) return "";
+            const groupPassed = items.filter(c => c.status === "pass").length;
+            const groupTotal = items.length;
+            return `<div class="check-group">
+                <div class="check-group-header">
+                    <span class="check-group-title">${esc(g.title)}</span>
+                    <span class="check-group-count">${groupPassed}/${groupTotal}</span>
+                    <span class="check-group-desc">${esc(g.desc)}</span>
+                </div>
+                ${items.map(c => {
+                const icon = c.status === "pass" ? "\u2713" : c.status === "warn" ? "!" : c.status === "info" ? "i" : "\u2717";
+                return `<div class="check-item ${c.status === "pass" ? "check-passed" : "check-failed"}">
+                        <span class="check-icon ${c.status}">${icon}</span>
+                        <div class="check-text">
+                            <div class="check-label">${esc(c.label)}</div>
+                            ${c.detail ? `<div class="check-detail">${c.detail}</div>` : ""}
+                        </div>
+                        ${c.tip && c.status !== "pass" ? `<div class="check-tip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <span>${esc(c.tip)}</span>
+                        </div>` : ""}
+                    </div>`;
+            }).join("")}
+            </div>`;
+        }).join("");
+    }
+
+    function validateReadme(raw) {
+        const text = raw.replace(/\r\n?/g, "\n");
+        const lines = text.split("\n");
+        const checks = [];
+
+        // Parse headers
+        const headers = {};
+        let nameFound = false;
+        for (let i = 0; i < Math.min(lines.length, 40); i++) {
+            const line = lines[i].trim();
+            if (line.startsWith("=== ") && line.endsWith(" ===")) {
+                nameFound = true;
+                continue;
+            }
+            if (line.startsWith("== ") && line.endsWith(" ==")) break;
+            const ci = line.indexOf(":");
+            if (ci > 0 && ci < 80) {
+                const k = line.slice(0, ci).trim();
+                const v = line.slice(ci + 1).trim();
+                if (k && v) headers[k.toLowerCase()] = v;
+            }
+        }
+
+        // Detect sections
+        const sectionTitles = lines
+            .filter(l => /^== .+ ==$/.test(l.trim()))
+            .map(l => l.trim().slice(3, -3).toLowerCase());
+        const hasSection = (name) => sectionTitles.some(s => s === name);
+
+        // === REQUIRED CHECKS ===
+
+        checks.push({
+            category: "required",
+            status: nameFound ? "pass" : "fail",
+            label: "Plugin Name header",
+            detail: nameFound ? null : "Missing",
+            tip: "Start your readme.txt with: === Plugin Name ===\nThis is the display name shown on WordPress.org."
+        });
+
+        checks.push({
+            category: "required",
+            status: headers["contributors"] ? "pass" : "fail",
+            label: "Contributors (WordPress.org usernames)",
+            detail: headers["contributors"] ? `Found: ${headers["contributors"]}` : "Missing",
+            tip: "Add: Contributors: username1, username2\nUse only WordPress.org usernames (case-sensitive). Each contributor gets a profile link and gravatar on the plugin page."
+        });
+
+        const tags = headers["tags"] ? headers["tags"].split(",").map(t => t.trim()).filter(Boolean) : [];
+        checks.push({
+            category: "required",
+            status: tags.length > 0 ? (tags.length <= 5 ? "pass" : "warn") : "fail",
+            label: "Tags (1\u20135 tags)",
+            detail: tags.length > 0
+                ? `Found ${tags.length} tag${tags.length > 1 ? "s" : ""}: ${tags.join(", ")}${tags.length > 5 ? " \u2014 max 5 allowed" : ""}`
+                : "Missing",
+            tip: "Add: Tags: e-commerce, payments, store\nUse 1\u20135 relevant, lowercase terms. Do not use competitor plugin names or brand-specific terms."
+        });
+
+        checks.push({
+            category: "required",
+            status: headers["stable tag"] ? "pass" : "fail",
+            label: "Stable tag",
+            detail: headers["stable tag"] ? `Found: ${headers["stable tag"]}` : "Missing",
+            tip: "Add: Stable tag: 1.2.3\nThis must match the Version in your main PHP file. Use SemVer (x.y.z). Never use 'trunk'."
+        });
+
+        checks.push({
+            category: "required",
+            status: headers["license"] ? "pass" : "fail",
+            label: "License",
+            detail: headers["license"] ? `Found: ${headers["license"]}` : "Missing",
+            tip: "Add: License: GPLv2 or later\nWordPress.org requires a GPL-compatible license. Also add: License URI: https://www.gnu.org/licenses/gpl-2.0.html"
+        });
+
+        // --- Short description ---
+        // The description is all text between the last header metadata line and the first == Section ==
+        let shortDesc = "";
+        let inHeaders = true;
+        let pastName = false;
+        for (let i = 0; i < Math.min(lines.length, 50); i++) {
+            const line = lines[i].trim();
+            // Skip empty lines between name and headers
+            if (!pastName && line.length === 0) continue;
+            // Skip the === Plugin Name === line
+            if (line.startsWith("=== ") && line.endsWith(" ===")) {
+                pastName = true;
+                continue;
+            }
+            // Stop at first == Section ==
+            if (line.startsWith("== ") && line.endsWith(" ==")) break;
+            // Skip header metadata lines (Key: Value format)
+            if (inHeaders) {
+                const ci = line.indexOf(":");
+                if (ci > 0 && ci < 40 && line.slice(0, ci).trim().length > 0) {
+                    continue; // This is a header line, skip it
+                }
+                // Once we hit a non-header, non-empty line, we're in the description
+                if (line.length > 0) inHeaders = false;
+            }
+            // Collect description text
+            if (!inHeaders && line.length > 0) {
+                shortDesc += (shortDesc ? " " : "") + line;
+            }
+        }
+        const descLen = shortDesc.length;
+        checks.push({
+            category: "required",
+            status: descLen > 0 ? (descLen <= 150 ? "pass" : "warn") : "fail",
+            label: "Short description (<150 characters)",
+            detail: descLen > 0
+                ? `${descLen} chars${descLen > 150 ? " \u2014 exceeds 150 char limit" : ""}`
+                : "Missing",
+            tip: "Write a plain-text, one-line description right after the header metadata (before any == Section ==). Max 150 characters. No HTML or Markdown. Example: 'A lightweight cache plugin that speeds up your WordPress site.'"
+        });
+
+        checks.push({
+            category: "required",
+            status: hasSection("description") ? "pass" : "fail",
+            label: "Description section",
+            detail: hasSection("description") ? null : "Missing",
+            tip: "Add: == Description ==\nExplain what your plugin does, its key features, and how it helps users. Use Markdown for formatting. This is the main content on your plugin page."
+        });
+
+        checks.push({
+            category: "required",
+            status: hasSection("changelog") ? "pass" : "warn",
+            label: "Changelog section",
+            detail: hasSection("changelog") ? null : "Missing",
+            tip: "Add: == Changelog ==\nDocument what changed in each version. Keep only the latest release in the readme; move older entries to a separate changelog.txt file to keep file size under 10KB."
+        });
+
+        checks.push({
+            category: "required",
+            status: new Blob([raw]).size / 1024 <= 10 ? "pass" : "fail",
+            label: `File size (${(new Blob([raw]).size / 1024).toFixed(1)}KB / 10KB)`,
+            detail: new Blob([raw]).size / 1024 > 10 ? "Exceeds 10KB limit" : null,
+            tip: "Keep readme.txt under 10KB. Trim long changelogs (move old entries to changelog.txt). Keep descriptions concise. Link to your website for in-depth docs."
+        });
+
+        // === RECOMMENDED CHECKS ===
+
+        checks.push({
+            category: "recommended",
+            status: headers["requires at least"] ? "pass" : "warn",
+            label: "Requires at least (WP version)",
+            detail: headers["requires at least"] ? `Found: ${headers["requires at least"]}` : "Not set",
+            tip: "Add: Requires at least: 6.0\nSince WP 5.8, this is parsed from your main PHP file header. But setting it in the readme ensures the directory displays the correct requirement."
+        });
+
+        checks.push({
+            category: "recommended",
+            status: headers["tested up to"] ? "pass" : "warn",
+            label: "Tested up to (WP version)",
+            detail: headers["tested up to"] ? `Found: ${headers["tested up to"]}` : "Not set",
+            tip: "Add: Tested up to: 6.7\nUse major versions only (e.g., 6.7, not 6.7.2). Test against the latest WordPress release and update this before each major WP release."
+        });
+
+        checks.push({
+            category: "recommended",
+            status: hasSection("installation") ? "pass" : "warn",
+            label: "Installation section",
+            detail: hasSection("installation") ? null : "Not present",
+            tip: "Add: == Installation ==\nProvide clear step-by-step install instructions. If your plugin requires special configuration post-install, explain it here. Simple plugins can skip this."
+        });
+
+        // === OPTIONAL CHECKS ===
+
+        checks.push({
+            category: "optional",
+            status: headers["requires php"] ? "pass" : "info",
+            label: "Requires PHP version",
+            detail: headers["requires php"] ? `Found: ${headers["requires php"]}` : "Not set",
+            tip: "Add: Requires PHP: 7.4\nRequired if your plugin needs a minimum PHP version. Since WP 5.2, WordPress itself enforces PHP version checks."
+        });
+
+        checks.push({
+            category: "optional",
+            status: hasSection("frequently asked questions") ? "pass" : "info",
+            label: "FAQ section",
+            detail: hasSection("frequently asked questions") ? null : "Not present",
+            tip: "Add: == Frequently Asked Questions ==\nUse = Question? = sub-headings. Address common user questions about features, compatibility, and troubleshooting."
+        });
+
+        checks.push({
+            category: "optional",
+            status: hasSection("screenshots") ? "pass" : "info",
+            label: "Screenshots section",
+            detail: hasSection("screenshots") ? null : "Not present",
+            tip: "Add: == Screenshots ==\nNumber each screenshot: 1. This is the settings page\nImages go in the assets/ directory as screenshot-1.png, etc. Screenshots significantly improve plugin adoption."
+        });
+
+        checks.push({
+            category: "optional",
+            status: headers["donate link"] ? "pass" : "info",
+            label: "Donate link",
+            detail: headers["donate link"] ? `Found: ${headers["donate link"]}` : "Not set",
+            tip: "Add: Donate link: https://your-site.com/donate\nAdds a 'Donate to this plugin' link in the sidebar. Optional but appreciated for free plugins."
+        });
+
+        return checks;
     }
 
     // ---------------------------------------------------------------------------
@@ -1013,7 +1798,8 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         try {
             const w = Math.round(editorPanel.getBoundingClientRect().width);
             localStorage.setItem("wpreadme-split-width", String(w));
-        } catch (e) { /* localStorage unavailable */ }
+        } catch (e) { /* localStorage unavailable */
+        }
     }
 
     // ---------------------------------------------------------------------------
@@ -1080,7 +1866,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         downloadBtn?.addEventListener("click", () => {
             const content = textarea.value;
             if (!content.trim()) return;
-            const blob = new Blob([content], { type: "text/plain" });
+            const blob = new Blob([content], {type: "text/plain"});
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -1089,6 +1875,16 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        });
+
+        // Validator toggle
+        const validatorToggle = document.getElementById("validator-toggle");
+        const validatorPanel = document.getElementById("validator-panel");
+        validatorToggle?.addEventListener("click", () => {
+            if (!validatorPanel) return;
+            const isOpen = validatorPanel.style.display !== "none";
+            validatorPanel.style.display = isOpen ? "none" : "block";
+            validatorToggle.classList.toggle("active", !isOpen && textarea.value.trim().length > 0);
         });
 
         // Resize handle
@@ -1103,7 +1899,8 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                         editorPanel.style.flexShrink = "0";
                     }
                 }
-            } catch (e) { /* localStorage unavailable */ }
+            } catch (e) { /* localStorage unavailable */
+            }
 
             handle.addEventListener("mousedown", (e) => {
                 e.preventDefault();

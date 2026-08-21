@@ -14,16 +14,20 @@ import {SITE_TITLE} from '../consts';
 
             <nav class="footer-nav" aria-label="Footer navigation">
                 <ul>
-                    <li><a href="/" data-astro-prefetch>Home</a></li>
                     <li><a href="/about" data-astro-prefetch>About</a></li>
                     <li><a href="/donate" data-astro-prefetch>Donate</a></li>
                 </ul>
             </nav>
 
             <div class="footer-links">
-                <a href="https://wordpress.org/plugins/" target="_blank" rel="noopener">WordPress.org</a>
-                <a href="https://wordpress.org/plugins/developers/add/" target="_blank" rel="noopener">Add Your Plugin</a>
-                <a href="https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/" target="_blank" rel="noopener">Readme Format Docs</a>
+                <a href="https://developer.wordpress.org/plugins/wordpress-org/plugin-developer-faq/" target="_blank"
+                   rel="noopener">Plugin Developer FAQ</a>
+                <a href="https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/"
+                   target="_blank" rel="noopener">Readme Format Docs</a>
+                <a href="https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/" target="_blank"
+                   rel="noopener">How Your Plugin Assets Work</a>
+                <a href="https://wordpress.org/plugins/developers/add/" target="_blank" rel="noopener">Add Your
+                    Plugin</a>
             </div>
         </div>
 
@@ -82,6 +86,10 @@ import {SITE_TITLE} from '../consts';
         display: flex;
         flex-direction: column;
         gap: 0.6rem;
+    }
+
+    .footer-nav li {
+        margin: 0;
     }
 
     .footer-nav a,
