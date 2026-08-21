@@ -94,4 +94,4 @@ npm run preview
 
 ## License
 
-Open source project by [Parsa.ws](https://parsa.ws).
+Project by [Parsa.ws](https://parsa.ws).
