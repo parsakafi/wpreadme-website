@@ -79,20 +79,26 @@ export function parseReadme(raw: string): ReadmeData {
     }
   }
 
-  // Short description: text between header and first == section ==
+  // Short description: text between header metadata and first == section ==
   {
     const descLines: string[] = [];
     let pastName = false;
+    let inHeaders = true;
     for (let i = 0; i < headerEndLine; i++) {
       const line = lines[i].trim();
       if (line.startsWith("=== ") && line.endsWith(" ===")) {
         pastName = true;
         continue;
       }
-      if (pastName && !line.includes(":") && line.length > 0) {
-        // Stop at first "Key:" line
-        const colonIdx = line.indexOf(":");
-        if (colonIdx > 0 && colonIdx < 30) break;
+      // Skip header metadata lines (Key: Value format)
+      if (inHeaders) {
+        const ci = line.indexOf(":");
+        if (ci > 0 && ci < 40 && line.slice(0, ci).trim().length > 0) {
+          continue;
+        }
+        if (line.length > 0) inHeaders = false;
+      }
+      if (!inHeaders && line.length > 0) {
         descLines.push(line);
       }
     }
