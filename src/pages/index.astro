@@ -1756,10 +1756,12 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     function insertReadmeContent(textarea, insertText, insertType) {
         const raw = textarea.value;
         const lines = raw.replace(/\r\n?/g, "\n").split("\n");
+        let cursorOffset = 0;
 
         if (insertType === "name") {
             // Prepend the entire readme template at the top
             textarea.value = insertText + "\n\n" + raw;
+            cursorOffset = insertText.length;
         } else if (insertType === "header") {
             // Insert a header line (Key: Value) in proper order
             const headerKey = insertText.split(":")[0].trim().toLowerCase();
@@ -1822,6 +1824,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
 
             lines.splice(insertIdx, 0, insertText);
             textarea.value = lines.join("\n");
+            cursorOffset = lines.slice(0, insertIdx).join("\n").length + 1;
 
         } else if (insertType === "shortdesc") {
             // Insert short description after the last header, before first section
@@ -1851,6 +1854,7 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             }
             lines.splice(insertIdx, 0, "", insertText, "");
             textarea.value = lines.join("\n");
+            cursorOffset = lines.slice(0, insertIdx + 1).join("\n").length;
 
         } else if (insertType === "section") {
             // Insert section in the correct position among existing sections
@@ -1885,7 +1889,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             }
             lines.splice(insertIdx, 0, "", insertText, "");
             textarea.value = lines.join("\n");
+            cursorOffset = lines.slice(0, insertIdx + 1).join("\n").length;
         }
+        return cursorOffset;
     }
 
     // ---------------------------------------------------------------------------
@@ -1957,9 +1963,16 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                 const statusText = previewStatus ? previewStatus.querySelector(".status-text") : null;
                 const charCount = document.getElementById("char-count");
                 if (!textarea || !previewContent || !previewEmpty) return;
-                insertReadmeContent(textarea, text, type);
+                const offset = insertReadmeContent(textarea, text, type);
                 updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+                // Scroll textarea to the inserted text position
                 textarea.focus();
+                textarea.selectionStart = textarea.selectionEnd = Math.min(offset, textarea.value.length);
+                // Use a small delay so the DOM has time to update textarea height
+                requestAnimationFrame(() => {
+                    textarea.blur();
+                    textarea.focus();
+                });
                 // Button feedback
                 addBtn.textContent = "\u2713 Added";
                 addBtn.classList.add("added");
