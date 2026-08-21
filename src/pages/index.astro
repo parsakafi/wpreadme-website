@@ -464,12 +464,47 @@ The preview will update instantly."></textarea>
         min-width: 0;
     }
 
+    .check-label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
     .check-label {
         font-size: 0.78rem;
         color: var(--text);
         line-height: 1.4;
         display: flex;
         align-items: center;
+    }
+
+    .check-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+        border: 1px solid #3858e9;
+        background: rgba(56, 89, 233, 0.08);
+        color: #3858e9;
+        font-size: 0.68rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .check-add-btn:hover {
+        background: #3858e9;
+        color: #fff;
+    }
+
+    .check-add-btn.added {
+        border-color: #16a34a;
+        background: rgba(22, 163, 74, 0.1);
+        color: #16a34a;
     }
 
     /* Red highlight for failed required items */
@@ -1460,10 +1495,14 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                 </div>
                 ${items.map(c => {
                 const icon = c.status === "pass" ? "\u2713" : c.status === "warn" ? "!" : c.status === "info" ? "i" : "\u2717";
+                const addBtn = c.insertText && c.status !== "pass" ? `<button class="check-add-btn" type="button" data-insert-text="${esc(c.insertText)}" data-insert-type="${c.insertType || "header"}" title="Insert into readme.txt">+ Add</button>` : "";
                 return `<div class="check-item ${c.status === "pass" ? "check-passed" : "check-failed"}">
                         <span class="check-icon ${c.status}">${icon}</span>
                         <div class="check-text">
-                            <div class="check-label">${esc(c.label)}</div>
+                            <div class="check-label-row">
+                                <div class="check-label">${esc(c.label)}</div>
+                                ${addBtn}
+                            </div>
                             ${c.detail ? `<div class="check-detail">${c.detail}</div>` : ""}
                         </div>
                         ${c.tip && c.status !== "pass" ? `<div class="check-tip">
@@ -1512,7 +1551,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: nameFound ? "pass" : "fail",
             label: "Plugin Name header",
             detail: nameFound ? null : "Missing",
-            tip: "Start your readme.txt with: === Plugin Name ===\nThis is the display name shown on WordPress.org."
+            tip: "Start your readme.txt with: === Plugin Name ===\nThis is the display name shown on WordPress.org.",
+            insertText: "=== Plugin Name ===\nContributors: yourusername\nTags: tag1, tag2\nRequires at least: 6.0\nTested up to: 6.7\nRequires PHP: 7.4\nStable tag: 1.0.0\nLicense: GPLv2 or later\nLicense URI: https://www.gnu.org/licenses/gpl-2.0.html\n\nA short description of your plugin.\n\n== Description ==\n\nDescribe what your plugin does here.\n\n== Installation ==\n\n1. Upload the plugin files to \`/wp-content/plugins/your-plugin/\`\n2. Activate the plugin through the \u2018Plugins\u2019 screen in WordPress.\n\n== Changelog ==\n\n= 1.0.0 =\n* Initial release",
+            insertType: "name"
         });
 
         checks.push({
@@ -1520,7 +1561,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["contributors"] ? "pass" : "fail",
             label: "Contributors (WordPress.org usernames)",
             detail: headers["contributors"] ? `Found: ${headers["contributors"]}` : "Missing",
-            tip: "Add: Contributors: username1, username2\nUse only WordPress.org usernames (case-sensitive). Each contributor gets a profile link and gravatar on the plugin page."
+            tip: "Add: Contributors: username1, username2\nUse only WordPress.org usernames (case-sensitive). Each contributor gets a profile link and gravatar on the plugin page.",
+            insertText: "Contributors: yourusername",
+            insertType: "header"
         });
 
         const tags = headers["tags"] ? headers["tags"].split(",").map(t => t.trim()).filter(Boolean) : [];
@@ -1531,7 +1574,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             detail: tags.length > 0
                 ? `Found ${tags.length} tag${tags.length > 1 ? "s" : ""}: ${tags.join(", ")}${tags.length > 5 ? " \u2014 max 5 allowed" : ""}`
                 : "Missing",
-            tip: "Add: Tags: e-commerce, payments, store\nUse 1\u20135 relevant, lowercase terms. Do not use competitor plugin names or brand-specific terms."
+            tip: "Add: Tags: e-commerce, payments, store\nUse 1\u20135 relevant, lowercase terms. Do not use competitor plugin names or brand-specific terms.",
+            insertText: "Tags: e-commerce, payments, store",
+            insertType: "header"
         });
 
         checks.push({
@@ -1539,7 +1584,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["stable tag"] ? "pass" : "fail",
             label: "Stable tag",
             detail: headers["stable tag"] ? `Found: ${headers["stable tag"]}` : "Missing",
-            tip: "Add: Stable tag: 1.2.3\nThis must match the Version in your main PHP file. Use SemVer (x.y.z). Never use 'trunk'."
+            tip: "Add: Stable tag: 1.2.3\nThis must match the Version in your main PHP file. Use SemVer (x.y.z). Never use 'trunk'.",
+            insertText: "Stable tag: 1.0.0",
+            insertType: "header"
         });
 
         checks.push({
@@ -1547,7 +1594,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["license"] ? "pass" : "fail",
             label: "License",
             detail: headers["license"] ? `Found: ${headers["license"]}` : "Missing",
-            tip: "Add: License: GPLv2 or later\nWordPress.org requires a GPL-compatible license. Also add: License URI: https://www.gnu.org/licenses/gpl-2.0.html"
+            tip: "Add: License: GPLv2 or later\nWordPress.org requires a GPL-compatible license. Also add: License URI: https://www.gnu.org/licenses/gpl-2.0.html",
+            insertText: "License: GPLv2 or later\nLicense URI: https://www.gnu.org/licenses/gpl-2.0.html",
+            insertType: "header"
         });
 
         // --- Short description ---
@@ -1588,7 +1637,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             detail: descLen > 0
                 ? `${descLen} chars${descLen > 150 ? " \u2014 exceeds 150 char limit" : ""}`
                 : "Missing",
-            tip: "Write a plain-text, one-line description right after the header metadata (before any == Section ==). Max 150 characters. No HTML or Markdown. Example: 'A lightweight cache plugin that speeds up your WordPress site.'"
+            tip: "Write a plain-text, one-line description right after the header metadata (before any == Section ==). Max 150 characters. No HTML or Markdown.",
+            insertText: "A lightweight plugin that adds powerful features to your WordPress site.",
+            insertType: "shortdesc"
         });
 
         checks.push({
@@ -1596,7 +1647,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: hasSection("description") ? "pass" : "fail",
             label: "Description section",
             detail: hasSection("description") ? null : "Missing",
-            tip: "Add: == Description ==\nExplain what your plugin does, its key features, and how it helps users. Use Markdown for formatting. This is the main content on your plugin page."
+            tip: "Explain what your plugin does, its key features, and how it helps users. Use Markdown for formatting. This is the main content on your plugin page.",
+            insertText: "== Description ==\n\nDescribe your plugin in detail. Explain what it does, its key features, and how it helps users.\n\n= Key Features =\n\n* Feature one \u2014 description\n* Feature two \u2014 description\n* Feature three \u2014 description",
+            insertType: "section"
         });
 
         checks.push({
@@ -1604,7 +1657,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: hasSection("changelog") ? "pass" : "warn",
             label: "Changelog section",
             detail: hasSection("changelog") ? null : "Missing",
-            tip: "Add: == Changelog ==\nDocument what changed in each version. Keep only the latest release in the readme; move older entries to a separate changelog.txt file to keep file size under 10KB."
+            tip: "Document what changed in each version. Keep only the latest release in the readme; move older entries to a separate changelog.txt file to keep file size under 10KB.",
+            insertText: "== Changelog ==\n\n= 1.0.0 =\n* Initial release",
+            insertType: "section"
         });
 
         checks.push({
@@ -1622,7 +1677,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["requires at least"] ? "pass" : "warn",
             label: "Requires at least (WP version)",
             detail: headers["requires at least"] ? `Found: ${headers["requires at least"]}` : "Not set",
-            tip: "Add: Requires at least: 6.0\nSince WP 5.8, this is parsed from your main PHP file header. But setting it in the readme ensures the directory displays the correct requirement."
+            tip: "Since WP 5.8, this is parsed from your main PHP file header. But setting it in the readme ensures the directory displays the correct requirement.",
+            insertText: "Requires at least: 6.0",
+            insertType: "header"
         });
 
         checks.push({
@@ -1630,7 +1687,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["tested up to"] ? "pass" : "warn",
             label: "Tested up to (WP version)",
             detail: headers["tested up to"] ? `Found: ${headers["tested up to"]}` : "Not set",
-            tip: "Add: Tested up to: 6.7\nUse major versions only (e.g., 6.7, not 6.7.2). Test against the latest WordPress release and update this before each major WP release."
+            tip: "Use major versions only (e.g., 6.7, not 6.7.2). Test against the latest WordPress release and update this before each major WP release.",
+            insertText: "Tested up to: 6.7",
+            insertType: "header"
         });
 
         checks.push({
@@ -1638,7 +1697,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: hasSection("installation") ? "pass" : "warn",
             label: "Installation section",
             detail: hasSection("installation") ? null : "Not present",
-            tip: "Add: == Installation ==\nProvide clear step-by-step install instructions. If your plugin requires special configuration post-install, explain it here. Simple plugins can skip this."
+            tip: "Provide clear step-by-step install instructions. If your plugin requires special configuration post-install, explain it here.",
+            insertText: "== Installation ==\n\n1. Upload the plugin files to \`/wp-content/plugins/your-plugin/\` directory, or install through the WordPress plugins screen directly.\n2. Activate the plugin through the \u2018Plugins\u2019 screen in WordPress.\n3. Go to Settings > Your Plugin to configure.",
+            insertType: "section"
         });
 
         // === OPTIONAL CHECKS ===
@@ -1648,7 +1709,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["requires php"] ? "pass" : "info",
             label: "Requires PHP version",
             detail: headers["requires php"] ? `Found: ${headers["requires php"]}` : "Not set",
-            tip: "Add: Requires PHP: 7.4\nRequired if your plugin needs a minimum PHP version. Since WP 5.2, WordPress itself enforces PHP version checks."
+            tip: "Required if your plugin needs a minimum PHP version. Since WP 5.2, WordPress itself enforces PHP version checks.",
+            insertText: "Requires PHP: 7.4",
+            insertType: "header"
         });
 
         checks.push({
@@ -1656,7 +1719,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: hasSection("frequently asked questions") ? "pass" : "info",
             label: "FAQ section",
             detail: hasSection("frequently asked questions") ? null : "Not present",
-            tip: "Add: == Frequently Asked Questions ==\nUse = Question? = sub-headings. Address common user questions about features, compatibility, and troubleshooting."
+            tip: "Use = Question? = sub-headings. Address common user questions about features, compatibility, and troubleshooting.",
+            insertText: "== Frequently Asked Questions ==\n\n= Does this plugin work with the latest version of WordPress? =\n\nYes, this plugin is compatible with the latest version of WordPress.\n\n= Do I need any additional plugins? =\n\nNo, this plugin works standalone.",
+            insertType: "section"
         });
 
         checks.push({
@@ -1664,7 +1729,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: hasSection("screenshots") ? "pass" : "info",
             label: "Screenshots section",
             detail: hasSection("screenshots") ? null : "Not present",
-            tip: "Add: == Screenshots ==\nNumber each screenshot: 1. This is the settings page\nImages go in the assets/ directory as screenshot-1.png, etc. Screenshots significantly improve plugin adoption."
+            tip: "Number each screenshot. Images go in the assets/ directory as screenshot-1.png, etc. Screenshots significantly improve plugin adoption.",
+            insertText: "== Screenshots ==\n\n1. The main settings dashboard\n2. Plugin in action on the storefront\n3. Configuration options panel",
+            insertType: "section"
         });
 
         checks.push({
@@ -1672,10 +1739,153 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             status: headers["donate link"] ? "pass" : "info",
             label: "Donate link",
             detail: headers["donate link"] ? `Found: ${headers["donate link"]}` : "Not set",
-            tip: "Add: Donate link: https://your-site.com/donate\nAdds a 'Donate to this plugin' link in the sidebar. Optional but appreciated for free plugins."
+            tip: "Adds a 'Donate to this plugin' link in the sidebar. Optional but appreciated for free plugins.",
+            insertText: "Donate link: https://your-site.com/donate",
+            insertType: "header"
         });
 
         return checks;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Smart insertion: adds missing headers/sections in the correct order
+    // ---------------------------------------------------------------------------
+    const HEADER_ORDER = ["contributors", "donate link", "tags", "requires at least", "tested up to", "requires php", "stable tag", "license", "license uri"];
+    const SECTION_ORDER = ["description", "installation", "frequently asked questions", "screenshots", "changelog"];
+
+    function insertReadmeContent(textarea, insertText, insertType) {
+        const raw = textarea.value;
+        const lines = raw.replace(/\r\n?/g, "\n").split("\n");
+
+        if (insertType === "name") {
+            // Prepend the entire readme template at the top
+            textarea.value = insertText + "\n\n" + raw;
+        } else if (insertType === "header") {
+            // Insert a header line (Key: Value) in proper order
+            const headerKey = insertText.split(":")[0].trim().toLowerCase();
+            const headerIdx = HEADER_ORDER.indexOf(headerKey);
+
+            // Find the === Name === line
+            let nameLineIdx = -1;
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].trim().startsWith("=== ") && lines[i].trim().endsWith(" ===")) {
+                    nameLineIdx = i;
+                    break;
+                }
+            }
+
+            // Find existing headers after name line
+            const existingHeaders = [];
+            let lastHeaderIdx = nameLineIdx;
+            for (let i = nameLineIdx + 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line.startsWith("== ") && line.endsWith(" ==")) break;
+                if (line.length === 0) continue;
+                const ci = line.indexOf(":");
+                if (ci > 0 && ci < 80) {
+                    const k = line.slice(0, ci).trim().toLowerCase();
+                    existingHeaders.push({key: k, idx: i});
+                    lastHeaderIdx = i;
+                }
+            }
+
+            // Find the right position to insert (maintain HEADER_ORDER)
+            let insertIdx = lastHeaderIdx + 1;
+            // Walk backwards through existing headers to find where this new one fits
+            for (let i = existingHeaders.length - 1; i >= 0; i--) {
+                const existingIdx = HEADER_ORDER.indexOf(existingHeaders[i].key);
+                if (headerIdx >= 0 && existingIdx >= 0 && headerIdx < existingIdx) {
+                    insertIdx = existingHeaders[i].idx;
+                } else {
+                    break;
+                }
+            }
+
+            // Find the blank line / section start to know boundary
+            let sectionStart = lines.length;
+            for (let i = insertIdx; i < lines.length; i++) {
+                if (lines[i].trim().startsWith("== ") && lines[i].trim().endsWith(" ==")) {
+                    sectionStart = i;
+                    break;
+                }
+            }
+
+            // Don't insert past section start
+            if (insertIdx > sectionStart) insertIdx = sectionStart;
+
+            // If no headers exist yet, insert after name line
+            if (existingHeaders.length === 0 && nameLineIdx >= 0) {
+                insertIdx = nameLineIdx + 1;
+                // Skip blank lines after name
+                while (insertIdx < lines.length && lines[insertIdx].trim().length === 0) insertIdx++;
+            }
+
+            lines.splice(insertIdx, 0, insertText);
+            textarea.value = lines.join("\n");
+
+        } else if (insertType === "shortdesc") {
+            // Insert short description after the last header, before first section
+            let lastHeaderIdx = -1;
+            let firstSectionIdx = lines.length;
+            let nameLineIdx = -1;
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line.startsWith("=== ") && line.endsWith(" ===")) nameLineIdx = i;
+                if (line.startsWith("== ") && line.endsWith(" ==")) {
+                    firstSectionIdx = i;
+                    break;
+                }
+            }
+            for (let i = (nameLineIdx >= 0 ? nameLineIdx + 1 : 0); i < firstSectionIdx; i++) {
+                const line = lines[i].trim();
+                if (line.length === 0) continue;
+                const ci = line.indexOf(":");
+                if (ci > 0 && ci < 80 && line.slice(0, ci).trim().length > 0) {
+                    lastHeaderIdx = i;
+                }
+            }
+            const insertIdx = Math.max(lastHeaderIdx + 1, (nameLineIdx >= 0 ? nameLineIdx + 1 : 0));
+            // Remove trailing blank lines between headers and where we insert
+            while (insertIdx < lines.length && lines[insertIdx].trim().length === 0 && insertIdx < firstSectionIdx) {
+                lines.splice(insertIdx, 1);
+            }
+            lines.splice(insertIdx, 0, "", insertText, "");
+            textarea.value = lines.join("\n");
+
+        } else if (insertType === "section") {
+            // Insert section in the correct position among existing sections
+            const newSectionTitle = insertText.split("\n")[0].replace(/^== | ==$/g, "").toLowerCase().trim();
+            const newSectionIdx = SECTION_ORDER.indexOf(newSectionTitle);
+
+            // Find all existing section start lines
+            const existingSections = [];
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].trim().startsWith("== ") && lines[i].trim().endsWith(" ==")) {
+                    const title = lines[i].trim().slice(3, -3).toLowerCase();
+                    existingSections.push({title, idx: i});
+                }
+            }
+
+            // Find the right insertion point
+            let insertIdx = lines.length;
+            for (let i = existingSections.length - 1; i >= 0; i--) {
+                const existingIdx = SECTION_ORDER.indexOf(existingSections[i].title);
+                if (newSectionIdx >= 0 && existingIdx >= 0 && newSectionIdx < existingIdx) {
+                    insertIdx = existingSections[i].idx;
+                } else {
+                    break;
+                }
+            }
+
+            // If no sections exist yet, append at end
+            // Ensure blank line before
+            if (insertIdx > 0 && lines[insertIdx - 1]?.trim().length > 0) {
+                lines.splice(insertIdx, 0, "");
+                insertIdx++;
+            }
+            lines.splice(insertIdx, 0, "", insertText, "");
+            textarea.value = lines.join("\n");
+        }
     }
 
     // ---------------------------------------------------------------------------
@@ -1729,6 +1939,34 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                     }
                     edPanel.style.flexShrink = "0";
                 }
+                return;
+            }
+
+            // Validator "Add" button
+            const addBtn = target.closest(".check-add-btn");
+            if (addBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const text = addBtn.getAttribute("data-insert-text");
+                const type = addBtn.getAttribute("data-insert-type");
+                if (!text || !type) return;
+                const textarea = document.getElementById("readme-input");
+                const previewContent = document.getElementById("preview-content");
+                const previewEmpty = document.getElementById("preview-empty");
+                const previewStatus = document.getElementById("preview-status");
+                const statusText = previewStatus ? previewStatus.querySelector(".status-text") : null;
+                const charCount = document.getElementById("char-count");
+                if (!textarea || !previewContent || !previewEmpty) return;
+                insertReadmeContent(textarea, text, type);
+                updatePreview(textarea, previewContent, previewEmpty, previewStatus, statusText, charCount);
+                textarea.focus();
+                // Button feedback
+                addBtn.textContent = "\u2713 Added";
+                addBtn.classList.add("added");
+                setTimeout(() => {
+                    addBtn.textContent = "+ Add";
+                    addBtn.classList.remove("added");
+                }, 1200);
                 return;
             }
 

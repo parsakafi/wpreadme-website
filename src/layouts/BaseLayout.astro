@@ -532,6 +532,20 @@ const {title, description, current, image, robots} = Astro.props;
         html[data-theme="dark"] .check-group-count {
             background: rgba(255,255,255,0.06);
         }
+        html[data-theme="dark"] .check-add-btn {
+            border-color: #5b8def;
+            background: rgba(91,141,239,0.12);
+            color: #5b8def;
+        }
+        html[data-theme="dark"] .check-add-btn:hover {
+            background: #5b8def;
+            color: #fff;
+        }
+        html[data-theme="dark"] .check-add-btn.added {
+            border-color: #4ade80;
+            background: rgba(74,222,128,0.12);
+            color: #4ade80;
+        }
 
         /* Theme toggle dark mode */
         html[data-theme="dark"] .theme-toggle {
