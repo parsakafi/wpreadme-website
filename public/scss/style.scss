@@ -66,6 +66,30 @@
   line-height: 1.4;
 }
 
+// --- Plugin banner ---
+.wp-plugin-banner {
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  margin-bottom: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.wp-banner-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin: 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
 // --- Plugin header ---
 .wp-plugin-head {
   display: flex;
@@ -172,7 +196,7 @@
     flex-basis: 100%;
     background-color: transparent;
     border: none;
-    border-bottom: 1px solid #dcdcde;
+    border-bottom: 1px solid #d9d9d9;
     position: absolute;
     width: 100%;
     bottom: 0;
