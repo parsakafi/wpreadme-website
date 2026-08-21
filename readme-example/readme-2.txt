@@ -1,5 +1,6 @@
 === Jetexir for WooCommerce ===
 Contributors: parselearn
+Donate link: https://parsa.ws/donate
 Tags: WooCommerce, Product, Cart, Checkout, Order
 Requires at least: 6.7
 Tested up to: 7.0
