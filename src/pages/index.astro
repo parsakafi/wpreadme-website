@@ -27,7 +27,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                             <polyline points="7 10 12 15 17 10"/>
                             <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
-                        <span>Download</span>
+                        <span>TXT</span>
                     </button>
                     <button class="download-btn" type="button" id="download-md" title="Download as Markdown">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -88,6 +88,20 @@ The preview will update instantly."></textarea>
                         <span class="summary-title">Readme Quality</span>
                         <span class="summary-sub">Add content to start validating</span>
                     </div>
+                    <button class="validator-maximize-btn" id="validator-maximize-btn" type="button" title="Maximize validator">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-expand">
+                            <polyline points="15 3 21 3 21 9"/>
+                            <polyline points="9 21 3 21 3 15"/>
+                            <line x1="21" y1="3" x2="14" y2="10"/>
+                            <line x1="3" y1="21" x2="10" y2="14"/>
+                        </svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-minimize">
+                            <polyline points="4 14 10 14 10 20"/>
+                            <polyline points="20 10 14 10 14 4"/>
+                            <line x1="14" y1="10" x2="21" y2="3"/>
+                            <line x1="3" y1="21" x2="10" y2="14"/>
+                        </svg>
+                    </button>
                 </div>
                 <div class="validator-checklist" id="validator-checklist"></div>
             </div>
@@ -295,12 +309,60 @@ The preview will update instantly."></textarea>
         flex-shrink: 0;
     }
 
+    .editor-panel.validator-maximized .validator-panel {
+        flex: 1;
+        max-height: none;
+        overflow-y: auto;
+    }
+
+    .editor-panel.validator-maximized .editor-textarea {
+        display: none;
+    }
+
+    .editor-panel.validator-maximized .editor-footer {
+        border-top: none;
+    }
+
     .validator-header {
         display: flex;
         align-items: center;
         gap: 1rem;
         padding: 0.75rem 1.25rem;
         border-bottom: 1px solid var(--border);
+    }
+
+    .validator-maximize-btn {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .validator-maximize-btn:hover {
+        color: var(--primary);
+        border-color: var(--primary);
+        background: var(--icon-bg);
+    }
+
+    .validator-maximize-btn .icon-minimize {
+        display: none;
+    }
+
+    .editor-panel.validator-maximized .validator-maximize-btn .icon-expand {
+        display: none;
+    }
+
+    .editor-panel.validator-maximized .validator-maximize-btn .icon-minimize {
+        display: block;
     }
 
     /* --- Circular progress ring --- */
@@ -351,7 +413,7 @@ The preview will update instantly."></textarea>
     }
 
     .ring-pct {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: var(--text);
         line-height: 1;
@@ -1439,6 +1501,9 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
                 toggleBtn.classList.remove("has-errors");
             }
             panel.style.display = "none";
+            // Restore textarea if maximized
+            const ep = document.getElementById("editor-panel");
+            ep?.classList.remove("validator-maximized");
             return;
         }
 
@@ -1484,6 +1549,11 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         // Auto-show panel when there are failures
         const anyFailed = requiredFailed + otherFailed > 0;
         panel.style.display = anyFailed ? "block" : "none";
+        // Restore textarea when auto-hiding
+        if (!anyFailed) {
+            const ep = document.getElementById("editor-panel");
+            ep?.classList.remove("validator-maximized");
+        }
 
         // Group by category
         const groups = [
@@ -2251,6 +2321,19 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             const isOpen = validatorPanel.style.display !== "none";
             validatorPanel.style.display = isOpen ? "none" : "block";
             validatorToggle.classList.toggle("active", !isOpen && textarea.value.trim().length > 0);
+            // If closing while maximized, restore the textarea
+            if (isOpen && editorPanel?.classList.contains("validator-maximized")) {
+                editorPanel.classList.remove("validator-maximized");
+            }
+        });
+
+        // Validator maximize toggle
+        const validatorMaxBtn = document.getElementById("validator-maximize-btn");
+        validatorMaxBtn?.addEventListener("click", () => {
+            editorPanel?.classList.toggle("validator-maximized");
+            // Scroll the checklist into view
+            const checklist = document.getElementById("validator-checklist");
+            if (checklist) checklist.scrollTop = 0;
         });
 
         // Resize handle

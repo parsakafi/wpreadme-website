@@ -499,6 +499,15 @@ const {title, description, current, image, robots} = Astro.props;
         html[data-theme="dark"] .validator-header {
             border-bottom-color: var(--border);
         }
+        html[data-theme="dark"] .validator-maximize-btn {
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+        html[data-theme="dark"] .validator-maximize-btn:hover {
+            color: #5b8def;
+            border-color: #5b8def;
+            background: rgba(255,255,255,0.08);
+        }
         html[data-theme="dark"] .ring-bg {
             stroke: var(--border);
         }
