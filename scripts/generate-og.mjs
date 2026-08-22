@@ -10,7 +10,7 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const OUT_DIR = path.join(ROOT, 'public', 'images');
 
-const VIOLET = '#7C3AED';
+const VIOLET = '#3ab4ed';
 const INK = '#111827';
 const SLATE = '#4B5563';
 const MUTED = '#6B7280';
@@ -39,7 +39,6 @@ const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   <circle cx="1050" cy="30" r="300" fill="url(#glow1)"/>
   <circle cx="110" cy="620" r="340" fill="url(#glow2)"/>
-  <text x="84" y="220" font-family="${FONT}" font-size="32" font-weight="700" fill="${VIOLET}" letter-spacing="3">WPREADME PREVIEW</text>
   <text x="84" y="320" font-family="${FONT}" font-size="72" font-weight="800" fill="${INK}">WPReadme</text>
   <text x="84" y="390" font-family="${FONT}" font-size="72" font-weight="800" fill="${INK}">Preview</text>
   <text x="84" y="460" font-family="${FONT}" font-size="30" font-weight="400" fill="${SLATE}">Preview your WordPress plugin readme.txt before publishing</text>
@@ -47,7 +46,7 @@ const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http
   <text x="84" y="555" font-family="${FONT}" font-size="30">
     <tspan font-weight="800" fill="${INK}">WPReadme</tspan> <tspan font-weight="400" fill="${MUTED}">Preview</tspan>
   </text>
-  <text x="1116" y="555" text-anchor="end" font-family="${FONT}" font-size="26" font-weight="400" fill="${FAINT}">Free &amp; Open Source</text>
+  <text x="1116" y="555" text-anchor="end" font-family="${FONT}" font-size="26" font-weight="400" fill="${FAINT}">wpreadme.ir</text>
 </svg>`;
 
 const png = await sharp(Buffer.from(svg)).png().toBuffer();
