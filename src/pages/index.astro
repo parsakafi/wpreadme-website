@@ -2303,13 +2303,8 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
     // ---------------------------------------------------------------------------
     registerGlobalListeners();
 
-    // Initial load
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initPage);
-    } else {
-        initPage();
-    }
-
-    // Astro View Transitions: re-init after navigation
+    // astro:page-load fires on initial load AND after View Transitions,
+    // so no need for a separate DOMContentLoaded listener (which would
+    // cause duplicate listeners and double downloads on first load).
     document.addEventListener("astro:page-load", initPage);
 </script>
