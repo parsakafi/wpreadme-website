@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import DonateCta from "../components/DonateCta.astro";
 ---
 
 <BaseLayout title="About"
@@ -131,23 +132,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         </p>
     </section>
 
-    <section class="cta-section">
-        <div class="container cta-container">
-            <div class="cta-content">
-                <h2 class="cta-title">Enjoying WPReadme Preview?</h2>
-                <p class="cta-text">
-                    This tool is free to use. If you find it helpful for your WordPress plugin development,
-                    consider supporting its continued development and maintenance.
-                </p>
-            </div>
-            <a href="/donate" class="cta-button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                <span>Support the Project</span>
-            </a>
-        </div>
-    </section>
+    <DonateCta />
 </BaseLayout>
 
 <style>
@@ -256,69 +241,5 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         color: var(--text-muted);
         line-height: 1.6;
         margin: 0;
-    }
-
-    /* --- CTA section --- */
-    .cta-section {
-        padding: 3rem 0 4.5rem;
-    }
-
-    .cta-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        padding: 2.5rem 3rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-    }
-
-    .cta-title {
-        font-size: 1.35rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem;
-        color: var(--text);
-    }
-
-    .cta-text {
-        font-size: 0.95rem;
-        color: var(--text-muted);
-        line-height: 1.65;
-        margin: 0;
-        max-width: 32rem;
-    }
-
-    .cta-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.85rem 1.6rem;
-        border-radius: 10px;
-        background: #d63638;
-        color: #fff;
-        font-size: 0.95rem;
-        font-weight: 700;
-        text-decoration: none;
-        white-space: nowrap;
-        flex-shrink: 0;
-        transition: background 0.2s, transform 0.15s;
-    }
-
-    .cta-button:hover {
-        background: #b32d2e;
-        transform: translateY(-1px);
-    }
-
-    @media (max-width: 640px) {
-        .cta-container {
-            flex-direction: column;
-            text-align: center;
-            padding: 2rem 1.5rem;
-        }
-
-        .cta-text {
-            max-width: 100%;
-        }
     }
 </style>

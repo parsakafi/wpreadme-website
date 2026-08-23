@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import DonateCta from "../components/DonateCta.astro";
 import {Icon} from "astro-icon/components";
 
 const endpoints = [
@@ -178,6 +179,10 @@ for (const check of checks.filter((c) =&gt; c.status !== 'pass')) {
             validator panel runs these same checks live.
         </p>
     </section>
+
+    <DonateCta
+        title="The API is free, too"
+        text="WPReadme Preview and its API are provided free of charge. If they save you time, consider supporting the development and hosting costs."/>
 </BaseLayout>
 
 <style>

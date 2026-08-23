@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import {Icon} from "astro-icon/components";
+import DonateCta from "../components/DonateCta.astro";
 
 const channels = [
     {name: 'Email', value: 'parsadeng@gmail.com', href: 'mailto:parsadeng@gmail.com', icon: 'copy'},
@@ -59,6 +59,10 @@ const channels = [
             which is very little: readme content never leaves your browser.
         </p>
     </section>
+
+    <DonateCta
+        title="Support WPReadme Preview"
+        text="If the tool has helped you ship better plugin listings, a small donation keeps it free, ad-free, and maintained."/>
 </BaseLayout>
 
 <style>

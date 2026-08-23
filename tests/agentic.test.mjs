@@ -196,6 +196,17 @@ test('trust pages render real content (500+ chars)', async () => {
     }
 });
 
+test('donate CTA renders on about, developers, and contact', async () => {
+    for (const page of ['/about', '/developers', '/contact']) {
+        const res = await req(page);
+        assert.match(res.text, /href="\/donate"/, `${page} should link to /donate`);
+        assert.match(res.text, /Support the Project/, `${page} should show the CTA button label`);
+        assert.match(res.text, /cta-button/, `${page} should render the CTA component`);
+        // Theme-driven accent, no hardcoded button colors in the page CSS
+        assert.match(res.text, /accent-donate|cta-button/, `${page} CTA present`);
+    }
+});
+
 // --- Machine-readable files --------------------------------------------------
 
 test('llms.txt publishes when-to-use agent instructions', async () => {
