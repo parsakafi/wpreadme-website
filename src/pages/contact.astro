@@ -1,0 +1,148 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {Icon} from "astro-icon/components";
+
+const channels = [
+    {name: 'Email', value: 'parsadeng@gmail.com', href: 'mailto:parsadeng@gmail.com', icon: 'copy'},
+    {name: 'LinkedIn', value: 'linkedin.com/in/parsakafi', href: 'https://www.linkedin.com/in/parsakafi', icon: 'arrow-right'},
+    {name: 'GitHub', value: 'github.com/parsakafi', href: 'https://github.com/parsakafi', icon: 'arrow-right'},
+    {name: 'X', value: 'x.com/parsakafi', href: 'https://x.com/parsakafi', icon: 'arrow-right'},
+];
+---
+
+<BaseLayout title="Contact"
+            description="Contact the developer of WPReadme Preview by email or social channels for questions, bug reports, and feedback."
+            current="contact">
+    <section class="page-hero">
+        <div class="container">
+            <h1 class="page-title">Contact</h1>
+            <p class="page-subtitle">
+                Questions, bug reports, and feedback about WPReadme Preview are welcome.
+                The fastest way to reach the developer is email.
+            </p>
+        </div>
+    </section>
+
+    <section class="container content">
+        <h2>Channels</h2>
+        <ul class="channel-list">
+            {channels.map((channel) => (
+                    <li class="channel-item">
+                        <span class="channel-name">{channel.name}</span>
+                        <a href={channel.href}
+                           target={channel.href.startsWith('mailto:') ? undefined : '_blank'}
+                           rel={channel.href.startsWith('mailto:') ? undefined : 'noopener'}>
+                            {channel.value}
+                        </a>
+                        {channel.icon === 'copy' && (
+                            <Icon name="copy" height="16" width="16"/>
+                        )}
+                    </li>
+            ))}
+        </ul>
+
+        <h2>Bug reports</h2>
+        <p>
+            For issues with WPReadme Preview or other open-source projects, opening a GitHub issue on the
+            project repository is usually quickest since the discussion stays public and helps other users.
+            Include your readme.txt content and what you expected the preview to show.
+        </p>
+
+        <h2>About the developer</h2>
+        <p>
+            WPReadme Preview is developed by Parsa Kafi, a software engineer based in Iran who builds
+            WordPress plugins and web tools such as Teligro, WP Meta Optimizer, and Jetexir for WooCommerce.
+            More at <a href="https://parsa.ws" target="_blank" rel="noopener">parsa.ws</a>.
+        </p>
+
+        <h2>Privacy questions</h2>
+        <p>
+            For privacy questions or data removal requests, use the same channels and mention privacy in
+            your message. Read the <a href="/privacy">privacy policy</a> to see what this site collects,
+            which is very little: readme content never leaves your browser.
+        </p>
+    </section>
+</BaseLayout>
+
+<style>
+    .page-hero {
+        background: var(--primary);
+        padding: 5rem 0 3.5rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+        color: #fff;
+    }
+
+    .page-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 42rem;
+        margin: 0 auto;
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    .content {
+        max-width: 52rem;
+        padding-bottom: 5rem;
+    }
+
+    .content h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 0.8rem;
+        letter-spacing: -0.01em;
+    }
+
+    .content h2:first-of-type {
+        margin-top: 2rem;
+    }
+
+    .content p {
+        color: var(--text-muted);
+        line-height: 1.75;
+        margin-bottom: 1rem;
+    }
+
+    .content a:not(.btn) {
+        color: #5b8def;
+    }
+
+    .channel-list {
+        list-style: none;
+        margin: 1.25rem 0 2rem;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .channel-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.1rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card-bg);
+        color: var(--text-muted);
+    }
+
+    .channel-name {
+        min-width: 6.5rem;
+        font-weight: 700;
+        color: var(--text);
+        font-size: 0.92rem;
+    }
+
+    .channel-item a {
+        font-size: 0.95rem;
+    }
+
+    .channel-item svg {
+        color: var(--text-dim);
+    }
+</style>

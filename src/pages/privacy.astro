@@ -1,0 +1,114 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Privacy Policy"
+            description="Privacy policy for WPReadme Preview. Your readme.txt content is processed entirely in your browser and never leaves your device."
+            current="privacy">
+    <section class="page-hero">
+        <div class="container">
+            <h1 class="page-title">Privacy Policy</h1>
+            <p class="page-subtitle">
+                WPReadme Preview is designed to respect your privacy. This policy explains what
+                happens to data when you use wpreadme.ir.
+            </p>
+        </div>
+    </section>
+
+    <section class="container content">
+        <h2>Readme content stays in your browser</h2>
+        <p>
+            The readme.txt text you paste or upload is processed entirely in your browser with JavaScript.
+            It is never sent to, stored on, or logged by our servers. When you close the tab, the content
+            is discarded; nothing about your plugin is retained between visits.
+        </p>
+
+        <h2>Local storage</h2>
+        <p>
+            We store a single preference key (your light/dark theme choice) in your browser's local
+            storage so the site remembers how you like it displayed. It never leaves your device, and you
+            can clear it at any time through your browser settings without affecting functionality.
+        </p>
+
+        <h2>Analytics</h2>
+        <p>
+            We use Google Tag Manager to collect anonymous usage statistics such as page views, referrers,
+            and approximate location. These analytics may set cookies on your device. You can block them
+            with any ad blocker or browser setting, and every feature of this tool keeps working.
+        </p>
+
+        <h2>No accounts, no data sales</h2>
+        <p>
+            There is no registration and no login, so we have no user database. Because we do not collect
+            personal information, we never sell or share personal data with anyone.
+        </p>
+
+        <h2>Third-party pages</h2>
+        <p>
+            This site links to third-party websites such as the WordPress.org developer documentation and
+            social profiles. We are not responsible for their content or privacy practices.
+        </p>
+
+        <h2>Donations</h2>
+        <p>
+            Donations are handled on public blockchain networks such as Bitcoin and Ethereum. Transactions
+            are pseudonymous and permanently visible on the respective ledgers. We cannot link a
+            transaction to your identity unless you choose to tell us who you are.
+        </p>
+
+        <h2>Changes and contact</h2>
+        <p>
+            Material changes to this policy will be published on this page with an updated date. For
+            privacy questions or data removal requests, email parsadeng@gmail.com or reach the developer
+            through any channel listed on the contact page and mention privacy in your message.
+        </p>
+    </section>
+</BaseLayout>
+
+<style>
+    .page-hero {
+        background: var(--primary);
+        padding: 5rem 0 3.5rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+        color: #fff;
+    }
+
+    .page-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 42rem;
+        margin: 0 auto;
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    .content {
+        max-width: 52rem;
+        padding-bottom: 5rem;
+    }
+
+    .content h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 0.8rem;
+        letter-spacing: -0.01em;
+    }
+
+    .content h2:first-of-type {
+        margin-top: 2rem;
+    }
+
+    .content p {
+        color: var(--text-muted);
+        line-height: 1.75;
+        margin-bottom: 1rem;
+    }
+
+    .content a:not(.btn) {
+        color: #5b8def;
+    }
+</style>

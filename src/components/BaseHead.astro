@@ -24,30 +24,97 @@ const pageTitle = title.includes(SITE_TITLE) ? title : `${title} - ${SITE_TITLE}
 // Schema.org image URLs must be absolute; resolve against the site URL.
 const absoluteImage = new URL(image, Astro.site ?? Astro.url).href;
 
-// The homepage is the only page that describes the Jetexir product itself;
-// emitting a SoftwareApplication block on every page (including the 404)
-// gives search engines misleading entity data.
-const isSoftwarePage = current === 'home';
-const schema = isSoftwarePage ? {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Jetexir",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "WordPress",
-    "description": description,
-    "image": absoluteImage,
-    "url": new URL('/', Astro.site ?? Astro.url).href,
-    "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
+const siteUrl = new URL('/', Astro.site ?? Astro.url).href;
+
+// The homepage is the only page that describes the WPReadme Preview product
+// itself; emitting a SoftwareApplication block on every page (including the
+// 404) gives search engines misleading entity data. The Organization block is
+// the site-wide identity anchor (contactPoint + address let AI verify who is
+// behind the tool).
+const organizationSchema = {
+    "@type": "Organization",
+    "name": "Parsa.ws",
+    "url": "https://parsa.ws",
+    "logo": "https://parsa.ws/favicon.ico",
+    "email": "parsadeng@gmail.com",
+    "founder": {
+        "@type": "Person",
+        "name": "Parsa Kafi",
+        "url": "https://parsa.ws"
     },
-    "publisher": {
-        "@type": "Organization",
-        "name": "Jetexir",
-        "url": Astro.site
-    }
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Tehran",
+        "addressCountry": "IR"
+    },
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "parsadeng@gmail.com",
+        "url": "https://wpreadme.ir/contact",
+        "availableLanguage": ["English", "Persian"]
+    },
+    "sameAs": [
+        "https://parsa.ws/portfolio/wpreadme",
+        "https://github.com/parsakafi",
+        "https://www.linkedin.com/in/parsakafi",
+        "https://x.com/parsakafi",
+        "https://t.me/parsakafi",
+        "https://profiles.wordpress.org/parselearn"
+    ]
+};
+
+const softwareSchema = current === 'home' ? {
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "WebSite",
+            "name": SITE_TITLE,
+            "url": siteUrl,
+            "description": description,
+            "inLanguage": "en",
+            "publisher": {"@id": "https://parsa.ws#organization"}
+        },
+        {
+            "@type": "SoftwareApplication",
+            "name": SITE_TITLE,
+            "alternateName": "WPReadme",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Web",
+            "browserRequirements": "Requires JavaScript",
+            "description": description,
+            "image": absoluteImage,
+            "url": siteUrl,
+            "isAccessibleForFree": true,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "author": {
+                "@type": "Person",
+                "name": "Parsa Kafi",
+                "url": "https://parsa.ws"
+            },
+            "publisher": {"@id": "https://parsa.ws#organization"},
+            "sameAs": [
+                "https://parsa.ws/portfolio/wpreadme",
+                "https://github.com/parsakafi/wpreadme-website"
+            ]
+        },
+        {
+            ...organizationSchema,
+            "@context": "https://schema.org",
+            "@id": "https://parsa.ws#organization"
+        }
+    ]
 } : null;
+
+const schema = softwareSchema ?? {
+    "@context": "https://schema.org",
+    ...organizationSchema,
+    "@id": "https://parsa.ws#organization"
+};
 ---
 
 <!-- Global Metadata -->
@@ -63,7 +130,7 @@ const schema = isSoftwarePage ? {
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
 
-<link rel="sitemap" href="/sitemap-index.xml"/>
+<link rel="sitemap" href="/sitemap.xml"/>
 <meta name="generator" content={Astro.generator}/>
 
 <link href="/css/style.min.css" rel="stylesheet">

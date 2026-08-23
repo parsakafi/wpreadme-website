@@ -59,7 +59,7 @@ const {title, description, current, image, robots} = Astro.props;
             document.addEventListener('astro:page-load', applyTheme);
         })();
     </script>
-    <BaseHead title={title} description={description} image={image} robots={robots} />
+    <BaseHead title={title} description={description} image={image} robots={robots} current={current} />
 </head>
 <body>
     <Header current={current} />
@@ -614,6 +614,12 @@ const {title, description, current, image, robots} = Astro.props;
         html[data-theme="dark"] .crypto-card {
             background: var(--card-bg);
             border-color: var(--border);
+        }
+
+        /* Feature icons (about page): --primary is a dark gray that
+           disappears on dark cards, use the dark-mode accent instead. */
+        html[data-theme="dark"] .feature-icon {
+            color: #5b8def;
         }
     </style>
 </body>

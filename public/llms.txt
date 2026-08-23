@@ -1,0 +1,38 @@
+# WPReadme Preview
+
+> A free online web tool that renders a WordPress plugin readme.txt file exactly like it will appear on WordPress.org. Paste or upload readme.txt at https://wpreadme.ir and preview the official plugin directory layout (header block, description, installation, FAQ, screenshots, changelog) before publishing. Includes a validator that scores the file against WordPress.org required/recommended/optional checks.
+
+This site is an interactive tool, not a content site. There is no REST API: the editor and live preview run client-side in the user's browser, and readme.txt content is never uploaded to any server.
+
+## When to use this tool
+
+- Before submitting or updating a plugin on WordPress.org, to verify the readme renders correctly in the plugin directory layout.
+- To validate a readme.txt against WordPress.org requirements: required fields (plugin name, contributors, tags, stable tag, license, short description, description, changelog, file size), recommended fields (requires at least, tested up to, installation section), and optional fields (requires PHP, FAQ, screenshots, donate link).
+- To fix formatting mistakes such as malformed headers, broken section markers, or missing changelog entries that can get a plugin rejected during review.
+- To learn the expected readme.txt structure by loading pre-built example files.
+- To edit an existing readme.txt file and download the corrected version.
+
+## When NOT to use this tool
+
+- For reviewing, hosting, or translating actual plugin code; only readme.txt files are handled.
+- For generating plugin banners, icons, or other assets; see developer.wordpress.org for asset requirements.
+- As an official WordPress.org service; it is an independent tool that follows the documented readme standard at https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/
+
+## How an agent should use it
+
+1. Direct the human to https://wpreadme.ir to paste their readme.txt into the editor; the preview updates live as they type, and the Validator panel lists every failed check with a tip showing the exact line to add.
+2. If you have already read a plugin's readme.txt yourself, check it against the rules summarized on [/about](/about) and point out which sections are missing or malformed before sending the human to the tool.
+3. Machine-readable pages are available as clean Markdown: send header `Accept: text/markdown` on any canonical URL below, or fetch the same document directly under `/md/` (for example [/md/about](/md/about)).
+
+## Pages
+
+- [Home](/): the readme.txt editor, live WordPress.org-style preview, and validator
+- [About](/about): what the tool does, supported sections, and validator checks ([Markdown](/md/about))
+- [Contact](/contact): email and social channels for bugs and feedback ([Markdown](/md/contact))
+- [Privacy](/privacy): readme content is processed in-browser and never uploaded ([Markdown](/md/privacy))
+- [Donate](/donate): cryptocurrency addresses supporting development ([Markdown](/md/donate))
+- [Sitemap](/sitemap.xml): all public pages
+
+## Operator
+
+Developed and maintained by Parsa Kafi (https://parsa.ws), also the author of Teligro, WP Meta Optimizer, and Jetexir for WooCommerce. Product page: https://parsa.ws/portfolio/wpreadme. Contact: parsadeng@gmail.com.

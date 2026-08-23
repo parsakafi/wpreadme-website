@@ -1,33 +1,13 @@
 import {defineConfig} from 'astro/config';
+import vercel from '@astrojs/vercel';
 import icon from "astro-icon";
 import compressor from "astro-compressor";
-import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
     site: 'https://wpreadme.ir', prefetch: {
         defaultStrategy: 'viewport'
-    }, integrations: [icon(), sitemap({
-        changefreq: 'monthly', priority: 0.7,
-
-        serialize(item) {
-            // Don't stamp every URL with "today" on each rebuild, a
-            // meaningless lastmod can trigger pointless recrawls. The
-            // sitemap is regenerated from content collections, so the
-            // lastmod field is simply omitted.
-            item.changefreq = 'weekly';
-            item.priority = 1;
-
-            if (/addons/.test(item.url)) {
-                item.priority = 0.9;
-            }
-            if (/blog/.test(item.url)) {
-                item.priority = 0.7;
-            }
-
-            return item;
-        },
-    }), compressor({
+    }, integrations: [icon(), compressor({
         gzip: true, brotli: true
     })], devToolbar: {
         enabled: false
@@ -37,8 +17,11 @@ export default defineConfig({
             // can miss rapid edits, leaving stale CSS in the dev server.
             usePolling: true
         }
-    }
-    /*output: "server",
+    },
+    // Server output so src/middleware.ts runs at request time and can
+    // negotiate Accept: text/markdown for agents (Vercel serves prerendered
+    // pages straight from its asset layer, bypassing middleware entirely).
+    output: 'server',
     adapter: vercel({
         imageService: true,
         webAnalytics: {enabled: true},
@@ -46,5 +29,5 @@ export default defineConfig({
             // caches all pages on first request and saves for 1 day
             expiration: 60 * 60 * 24,
         },
-    })*/
+    })
 });

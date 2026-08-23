@@ -5,6 +5,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <BaseLayout title="WPReadme Preview"
             description="Preview your WordPress plugin readme.txt file before publishing. A free online tool that renders your readme.txt exactly like WordPress.org."
             current="home">
+    <!-- Server-rendered summary of the tool: readable by AI agents, search
+         engines, screen readers, and anyone browsing without JavaScript.
+         Visually hidden because the split-pane app below is the interface. -->
+    <section class="sr-only">
+        <h1>WPReadme Preview: WordPress Plugin readme.txt Preview Tool</h1>
+        <p>
+            WPReadme Preview is a free online tool that renders your WordPress plugin readme.txt file exactly like it
+            will appear on WordPress.org. Paste or upload your readme.txt and see a faithful preview of the plugin
+            directory layout before publishing, including the header block, description with Markdown support,
+            installation instructions, frequently asked questions, screenshots, and changelog entries.
+        </p>
+        <p>
+            The built-in readme validator scores your file against official WordPress.org requirements and sorts every
+            check into required, recommended, and optional categories, with a fix tip and a link to the relevant
+            documentation for each failed item. Upload an existing readme.txt to start editing right away, load
+            pre-built examples to learn the expected structure, then download the finished file. No registration is
+            required, nothing is uploaded to a server, and the tool works on desktop and mobile.
+        </p>
+    </section>
     <div class="app-layout" id="app-layout">
         <!-- Left: Editor -->
         <aside class="editor-panel" id="editor-panel">
@@ -159,6 +178,19 @@ The preview will update instantly."></textarea>
 </BaseLayout>
 
 <style is:global>
+    /* Visually hidden, still rendered in the HTML for agents and screen readers. */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
     .app-layout {
         display: flex;
         height: calc(100vh - var(--header-height, 68px));

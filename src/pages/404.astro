@@ -7,13 +7,31 @@ import {Icon} from "astro-icon/components";
     <section class="page-hero">
         <div class="container">
             <h1 class="page-title">404</h1>
-            <p class="page-subtitle">Page not found. Redirecting you back to the homepage…</p>
+            <p class="page-subtitle">Page not found. Here is where to look next:</p>
             <div class="about-actions">
                 <a href="/" class="btn btn-primary">
                     <Icon name="arrow-left" height="20" width="20"/> Back to Home
                 </a>
             </div>
         </div>
+    </section>
+
+    <section class="container recovery">
+        <h2>Site map</h2>
+        <ul class="recovery-links">
+            <li><a href="/">Home</a>, the readme.txt editor, live preview, and validator</li>
+            <li><a href="/about">About</a>, what this tool does and which readme sections it supports</li>
+            <li><a href="/contact">Contact</a>, how to reach the developer</li>
+            <li><a href="/privacy">Privacy</a>, what data is (and is not) collected</li>
+            <li><a href="/donate">Donate</a>, support the project</li>
+        </ul>
+
+        <h2>For agents and machines</h2>
+        <ul class="recovery-links">
+            <li><a href="/llms.txt"><code>/llms.txt</code></a>, machine-readable agent instructions</li>
+            <li><a href="/sitemap.xml"><code>/sitemap.xml</code></a>, all public pages</li>
+            <li>Send <code>Accept: text/markdown</code> on any path to receive a markdown response</li>
+        </ul>
     </section>
 
     <script>
@@ -46,5 +64,40 @@ import {Icon} from "astro-icon/components";
     .about-actions {
         display: flex;
         justify-content: center;
+    }
+
+    .recovery {
+        max-width: 52rem;
+        padding-bottom: 5rem;
+    }
+
+    .recovery h2 {
+        font-size: 1.2rem;
+        margin: 1.8rem 0 0.8rem;
+    }
+
+    .recovery-links {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+    }
+
+    .recovery-links li {
+        color: var(--text-muted);
+        line-height: 1.7;
+    }
+
+    .recovery-links a {
+        color: #5b8def;
+    }
+
+    .recovery-links code {
+        background: var(--icon-bg);
+        padding: 0.15em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
     }
 </style>
