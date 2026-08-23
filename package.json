@@ -12,7 +12,7 @@
     "check": "astro check",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "node --test tests/agentic.test.mjs"
+    "test": "node --test --experimental-strip-types tests/agentic.test.mjs tests/readme-sections.test.mjs"
   },
   "private": true,
   "devDependencies": {

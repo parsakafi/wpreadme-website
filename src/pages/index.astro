@@ -871,7 +871,7 @@ The preview will update instantly."></textarea>
 
 <script>
     // @ts-nocheck, client-side only
-    import {parseReadme, renderContent, type ReadmeData} from "../lib/readme-parser";
+    import {parseReadme, renderContent, customSections} from "../lib/readme-parser";
 
     // ---------------------------------------------------------------------------
     // Example readme.txt content
@@ -938,6 +938,10 @@ Yes, My Awesome Plugin is fully translatable. A .pot file is included in the /la
 = Can I disable individual features? =
 
 Yes, each feature can be independently enabled or disabled from the plugin settings page under Settings > My Awesome Plugin.
+
+== External services ==
+
+This plugin connects to WooCommerce Developer Blog feed only when the Woo Developer Feed add-on is enabled. No personal data is sent; only standard HTTP request headers are transmitted.
 
 == Screenshots ==
 
@@ -1023,27 +1027,22 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
         ).join("") : "";
 
         // --- Extract sections ---
+        // Custom sections (anything outside the five main ones) are rendered
+        // by WordPress.org inside the Description tab, after the description
+        // content, so they are appended to descHtml below.
+        const custom = customSections(data).map((s) =>
+            `<h3 class="wp-block-title">${esc(s.title)}</h3>
+             ${renderContent(s.content)}`
+        ).join("");
+
         const descSection = data.sections.find((s) => s.title.toLowerCase() === "description");
-        const descHtml = descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`;
+        const descHtml = `${descSection ? renderContent(descSection.content) : `<p>${esc(data.shortDescription)}</p>`}${custom}`;
 
         const installSection = data.sections.find((s) => s.title.toLowerCase() === "installation");
         const installHtml = installSection ? renderContent(installSection.content) : "<p class=\"wp-empty-msg\">No installation instructions provided.</p>";
 
         const changelogSection = data.sections.find((s) => s.title.toLowerCase() === "changelog");
         const changelogHtml = changelogSection ? renderContent(changelogSection.content) : "";
-
-        const otherSections = data.sections.filter((s) => {
-            const t = s.title.toLowerCase();
-            return t !== "description" && t !== "installation" &&
-                t !== "frequently asked questions" && t !== "screenshots" &&
-                t !== "changelog";
-        });
-        const otherHtml = otherSections.map((s) =>
-            `<div class="wp-section-block">
-                <h2 class="wp-block-title">${esc(s.title)}</h2>
-                <div class="wp-prose">${renderContent(s.content)}</div>
-            </div>`
-        ).join("");
 
         // --- Screenshots ---
         const ssHtml = data.screenshots.length > 0
@@ -1101,7 +1100,6 @@ Yes, each feature can be independently enabled or disabled from the plugin setti
             ssHtml,
             faqHtml,
             contributorsHtml,
-            otherHtml,
         ].filter(Boolean).join("");
 
         // Tab 2: Reviews

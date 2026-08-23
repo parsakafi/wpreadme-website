@@ -40,6 +40,30 @@ export interface ScreenshotItem {
 }
 
 /**
+ * The five sections WordPress.org renders in dedicated places. Every other
+ * section is a "custom section" and WordPress.org appends it to the end of
+ * the Description tab instead of giving it its own block or tab.
+ *
+ * https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/#custom-sections
+ */
+export const MAIN_SECTION_TITLES = [
+  'description',
+  'installation',
+  'frequently asked questions',
+  'screenshots',
+  'changelog',
+] as const;
+
+export function isMainSection(title: string): boolean {
+  return (MAIN_SECTION_TITLES as readonly string[]).includes(title.trim().toLowerCase());
+}
+
+/** Sections that WordPress.org would render inside the Description tab. */
+export function customSections(data: ReadmeData): ReadmeSection[] {
+  return data.sections.filter((s) => !isMainSection(s.title));
+}
+
+/**
  * Parse a readme.txt string into structured data.
  */
 export function parseReadme(raw: string): ReadmeData {

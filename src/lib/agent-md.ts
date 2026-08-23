@@ -94,6 +94,8 @@ The WordPress plugin directory uses a specific readme.txt format. Formatting mis
 - Screenshots: captioned screenshot list
 - Changelog: version history entries
 
+Custom sections, such as an External services section, are rendered inside the Description tab after the description content, exactly like WordPress.org does.
+
 ## Validator checks
 
 - Required: Plugin Name, Contributors, Tags, Stable Tag, License, Short Description, Description, Changelog, File Size
