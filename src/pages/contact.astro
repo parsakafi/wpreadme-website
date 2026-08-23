@@ -34,9 +34,6 @@ const channels = [
                            rel={channel.href.startsWith('mailto:') ? undefined : 'noopener'}>
                             {channel.value}
                         </a>
-                        {channel.icon === 'copy' && (
-                            <Icon name="copy" height="16" width="16"/>
-                        )}
                     </li>
             ))}
         </ul>
