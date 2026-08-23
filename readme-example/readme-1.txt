@@ -1,6 +1,6 @@
 === Jetexir Iran Post ===
 Contributors: parselearn
-Donate link: https://parsa.ws/donate
+Donate link: https://jetexir.ir/donate
 Tags: woocommerce, jetexir, iran post, tracking, shipping
 Requires at least: 6.7
 Tested up to: 7.1

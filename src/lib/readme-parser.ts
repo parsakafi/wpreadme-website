@@ -64,6 +64,19 @@ export function customSections(data: ReadmeData): ReadmeSection[] {
 }
 
 /**
+ * Detect "= Sub-heading =" lines (FAQ questions and description sub-sections).
+ *
+ * WordPress.org's readme parser tolerates missing padding around the equals
+ * signs ("=Like this=" or "=  Like this  ="), so we do too. Returns the
+ * heading text, or null when the line is not a sub-heading. Lines starting
+ * with "==" are section headings and never match.
+ */
+export function parseSubheading(trimmedLine: string): string | null {
+  const match = trimmedLine.match(/^=\s*([^=\s][^=]*?)\s*=\s*$/);
+  return match ? match[1].trim() : null;
+}
+
+/**
  * Parse a readme.txt string into structured data.
  */
 export function parseReadme(raw: string): ReadmeData {
