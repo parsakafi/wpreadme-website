@@ -22,6 +22,13 @@ export default defineConfig({
     // negotiate Accept: text/markdown for agents (Vercel serves prerendered
     // pages straight from its asset layer, bypassing middleware entirely).
     output: 'server',
+    // The public API accepts keyless POSTs (including raw text/plain bodies)
+    // from servers, scripts, and agents that send no Origin header. There
+    // are no cookies or credentials to forge, so browser-form CSRF
+    // protection only breaks documented API behavior here.
+    security: {
+        checkOrigin: false,
+    },
     adapter: vercel({
         imageService: true,
         webAnalytics: {enabled: true},

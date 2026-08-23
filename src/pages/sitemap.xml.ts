@@ -2,7 +2,7 @@ import type {APIRoute} from 'astro';
 
 // The route list is fixed and small; keeping it explicit means the sitemap
 // stays correct even though every route is rendered at request time.
-const ROUTES = ['/', '/about', '/contact', '/donate', '/privacy'];
+const ROUTES = ['/', '/about', '/developers', '/contact', '/donate', '/privacy'];
 
 export const GET: APIRoute = ({site}) => {
     const base = site ?? new URL('https://wpreadme.ir');

@@ -114,10 +114,11 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     }
 
     // Only negotiate for page-like paths. Requests for files (css, js, fonts,
-    // images, robots.txt, ...) always get exactly what is on disk.
+    // images, robots.txt, ...) always get exactly what is on disk, and /api/*
+    // endpoints always answer JSON regardless of the Accept header.
     const lastSegment = pathname.split('/').pop() ?? '';
     const isPagePath = !lastSegment.includes('.') && !pathname.startsWith('/_image');
-    if (!isPagePath) {
+    if (!isPagePath || pathname === '/api' || pathname.startsWith('/api/')) {
         return next();
     }
 
@@ -150,13 +151,15 @@ The path \`${pathname}\` does not exist on WPReadme Preview.
 
 - [Home](/), the readme.txt editor, live preview, and validator
 - [About](/about), what this tool does and which readme sections it supports
+- [API & Developers](/developers), free JSON API to parse and validate readme.txt files
 - [Contact](/contact), how to reach the developer
 - [Privacy](/privacy), what data is (and is not) collected
 - [Donate](/donate), support the project
 - [llms.txt](/llms.txt), machine-readable agent instructions
 - [Sitemap](/sitemap.xml), all public pages
+- [OpenAPI spec](/openapi.json), machine-readable API specification
 
-This site is a free online tool that previews a WordPress plugin readme.txt file exactly like WordPress.org will render it.`, 404);
+This site is a free online tool that previews a WordPress plugin readme.txt file exactly like WordPress.org will render it. To validate a readme programmatically: POST {"readme": "..."} to /api/validate.`, 404);
         appendVaryAccept(response.headers);
         return response;
     }

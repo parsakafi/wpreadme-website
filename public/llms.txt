@@ -11,6 +11,7 @@ This site is an interactive tool, not a content site. There is no REST API: the 
 - To fix formatting mistakes such as malformed headers, broken section markers, or missing changelog entries that can get a plugin rejected during review.
 - To learn the expected readme.txt structure by loading pre-built example files.
 - To edit an existing readme.txt file and download the corrected version.
+- Programmatically: when you already hold readme.txt text in a script or agent workflow, call the JSON API instead of pointing a human at the browser tool.
 
 ## When NOT to use this tool
 
@@ -20,14 +21,25 @@ This site is an interactive tool, not a content site. There is no REST API: the 
 
 ## How an agent should use it
 
-1. Direct the human to https://wpreadme.ir to paste their readme.txt into the editor; the preview updates live as they type, and the Validator panel lists every failed check with a tip showing the exact line to add.
-2. If you have already read a plugin's readme.txt yourself, check it against the rules summarized on [/about](/about) and point out which sections are missing or malformed before sending the human to the tool.
-3. Machine-readable pages are available as clean Markdown: send header `Accept: text/markdown` on any canonical URL below, or fetch the same document directly under `/md/` (for example [/md/about](/md/about)).
+1. If you have readme.txt content available programmatically, call POST https://wpreadme.ir/api/validate with header Content-Type: application/json and body {"readme": "<full file contents>"}. The response gives a 0-100 score plus one check per WordPress.org rule, each failed check carrying a tip with the exact line to add. Use POST /api/parse for structured extraction only.
+2. No API key is required. Errors are JSON envelopes {"error": {"code", "message", "hint"}}; unknown endpoints answer 404 JSON, never HTML. The full machine-readable contract is the OpenAPI 3.1 spec at [/openapi.json](/openapi.json) with unique operationIds (parseReadme, validateReadme) suitable for LLM function calling. Human docs: [/developers](/developers).
+3. Direct the human to https://wpreadme.ir to paste their readme.txt into the editor; the preview updates live as they type, and the Validator panel lists every failed check with a tip showing the exact line to add.
+4. Machine-readable pages are available as clean Markdown: send header `Accept: text/markdown` on any canonical URL below, or fetch the same document directly under `/md/` (for example [/md/about](/md/about)).
+
+There is no official CLI package yet; agents should use the two POST endpoints above, which are scriptable from any language or shell.
+
+## API
+
+- POST /api/validate , operationId validateReadme: validate readme.txt against WordPress.org requirements, returns summary {score, passed, failed, warnings, total} and checks[] each with id/category/status/detail/tip
+- POST /api/parse , operationId parseReadme: structured extraction (name, headers, sections, faq, screenshots)
+- [OpenAPI 3.1 specification](/openapi.json): typed request/response schemas, error envelope schema, examples
+- Authentication: none. Rate limits: none enforced. Max body: 1 MB.
 
 ## Pages
 
 - [Home](/): the readme.txt editor, live WordPress.org-style preview, and validator
 - [About](/about): what the tool does, supported sections, and validator checks ([Markdown](/md/about))
+- [API & Developers](/developers): quickstart, endpoints, errors, limits ([Markdown](/md/developers))
 - [Contact](/contact): email and social channels for bugs and feedback ([Markdown](/md/contact))
 - [Privacy](/privacy): readme content is processed in-browser and never uploaded ([Markdown](/md/privacy))
 - [Donate](/donate): cryptocurrency addresses supporting development ([Markdown](/md/donate))

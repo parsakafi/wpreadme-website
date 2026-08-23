@@ -43,9 +43,23 @@ WPReadme Preview is a web tool for WordPress plugin developers at ${SITE_URL}. I
 - Pre-built example readme files
 - Free, no registration, works on desktop and mobile
 
+## API
+
+The validator is available as a free JSON API, no key required. Send POST requests with header Content-Type: application/json and body {"readme": "<full readme.txt contents>"}:
+
+- POST https://wpreadme.ir/api/parse , structured JSON of the file
+- POST https://wpreadme.ir/api/validate , checks against WordPress.org requirements with a 0-100 score
+
+Example:
+
+    curl -s https://wpreadme.ir/api/validate -H "Content-Type: application/json" -d '{"readme": "=== My Plugin ==="}'
+
+Errors return {"error": {"code", "message", "hint"}} as application/json. Full OpenAPI 3.1 spec: https://wpreadme.ir/openapi.json
+
 ## Pages
 
 - [About](/about)
+- [API & Developers](/developers)
 - [Contact](/contact)
 - [Donate](/donate)
 - [Privacy](/privacy)
@@ -108,6 +122,32 @@ WPReadme Preview is free to use. If it has helped you, consider supporting devel
 Every contribution helps maintain and improve the tool. Thank you!
 
 Developed by [${AUTHOR_NAME}](${AUTHOR_URL}).`,
+    '/developers': `# WPReadme Preview API & Developers
+
+Free JSON API for parsing and validating WordPress plugin readme.txt files, the same engine behind the in-browser validator at ${SITE_URL}. No API key and no registration required.
+
+## Endpoints
+
+Both endpoints accept POST only, with header Content-Type: application/json and body {"readme": "<full readme.txt contents>"}, or a raw text/plain body.
+
+- POST /api/parse , operationId parseReadme. Returns the plugin name, header fields, sections, FAQ items, and screenshots extracted from the file.
+- POST /api/validate , operationId validateReadme. Runs every WordPress.org requirement check (required: plugin name, contributors, tags, stable tag, license, short description, description, changelog, file size; recommended: requires at least, tested up to, installation; optional: requires PHP, FAQ, screenshots, donate link) and returns a 0-100 score plus one check object per rule with a stable id, category, status (pass/fail/warn/info), detail, and a tip with the exact line to add.
+
+Example:
+
+    curl -s ${SITE_URL}/api/validate -H "Content-Type: application/json" -d '{"readme": "=== My Plugin ==="}'
+
+## Errors
+
+All errors are application/json with a machine-readable envelope: {"error": {"code": "...", "message": "...", "hint": "..."}}. Codes include invalid_json (400), missing_readme (400), invalid_readme (400), unknown_endpoint (404), method_not_allowed (405), payload_too_large (413), unsupported_media_type (415).
+
+## Specification and limits
+
+- OpenAPI 3.1 spec with typed schemas and unique operationIds: ${SITE_URL}/openapi.json
+- Maximum body size 1 MB (WordPress.org caps readme.txt at 10 KB)
+- No rate limits enforced currently
+
+Human-readable documentation: [${SITE_URL}/developers](${SITE_URL}/developers).`,
     '/contact': `# Contact
 
 Questions, bug reports, and feedback about WPReadme Preview are welcome. The fastest way to reach the developer is email or Telegram; most messages get a reply within one or two business days.

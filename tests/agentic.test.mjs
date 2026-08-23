@@ -10,8 +10,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 let server;
 
-async function req(pathname, headers = {}) {
-    const res = await fetch(`${BASE}${pathname}`, {headers});
+async function req(pathname, headers = {}, init = {}) {
+    const res = await fetch(`${BASE}${pathname}`, {headers, ...init});
     const text = await res.text();
     return {status: res.status, contentType: res.headers.get('content-type') ?? '', vary: res.headers.get('vary') ?? '', text};
 }
@@ -37,7 +37,8 @@ function varyContains(vary, token) {
 }
 
 before(async () => {
-    server = spawn(process.execPath, ['./node_modules/astro/bin/astro.mjs', 'dev', '--host', '127.0.0.1', '--port', String(PORT)], {
+    // --force replaces any stale dev server holding Astro's lock file.
+    server = spawn(process.execPath, ['./node_modules/astro/bin/astro.mjs', 'dev', '--force', '--host', '127.0.0.1', '--port', String(PORT)], {
         cwd: ROOT,
         env: {...process.env, ASTRO_TELEMETRY_DISABLED: '1'},
         stdio: ['ignore', 'ignore', 'pipe'],
@@ -221,4 +222,231 @@ test('robots.txt references sitemap and llms.txt', async () => {
     assert.equal(res.status, 200);
     assert.match(res.text, /Sitemap: https:\/\/wpreadme\.ir\/sitemap\.xml/);
     assert.match(res.text, /llms\.txt/);
+});
+
+// --- Public API: OpenAPI spec + JSON endpoints ------------------------------
+
+const GOOD_README = `=== My Awesome Plugin ===
+Contributors: developername
+Donate link: https://example.com/donate
+Tags: woocommerce, ecommerce
+Requires at least: 6.0
+Tested up to: 6.6
+Requires PHP: 7.4
+Stable tag: 1.2.0
+License: GPLv2 or later
+
+A lightweight WooCommerce plugin.
+
+== Description ==
+
+It makes stores better.
+
+== Installation ==
+
+1. Upload and activate.
+
+== Frequently Asked Questions ==
+
+= Does it work everywhere? =
+
+Yes.
+
+== Screenshots ==
+
+1. The settings screen
+
+== Changelog ==
+
+= 1.2.0 =
+* Initial release`;
+
+async function post(pathname, body, contentType = 'application/json') {
+    return req(pathname, {'Content-Type': contentType}, {method: 'POST', body});
+}
+
+function assertErrorEnvelope(body, status, code) {
+    const parsed = JSON.parse(body);
+    assert.equal(parsed.error.code, code, `expected error code ${code}`);
+    assert.ok(parsed.error.message, 'error envelope needs a message');
+}
+
+test('openapi.json publishes a complete OpenAPI 3.1 spec', async () => {
+    for (const path of ['/openapi.json', '/api/openapi.json']) {
+        const res = await req(path);
+        assert.equal(res.status, 200, path);
+        assert.match(res.contentType, /^application\/json/);
+        const spec = JSON.parse(res.text);
+
+        assert.equal(spec.openapi, '3.1.0');
+        assert.match(spec.info.title, /WPReadme/);
+        assert.equal(spec.servers[0].url, 'https://wpreadme.ir');
+
+        // Every operation needs a unique operationId, summary, and description.
+        const opIds = new Set();
+        for (const [p, item] of Object.entries(spec.paths)) {
+            for (const [method, op] of Object.entries(item)) {
+                assert.ok(op.operationId, `${method} ${p} missing operationId`);
+                assert.ok(!opIds.has(op.operationId), `duplicate operationId ${op.operationId}`);
+                opIds.add(op.operationId);
+                assert.ok(op.summary && op.description.length > 20, `${op.operationId} lacks docs`);
+                assert.ok(op.responses['200'], `${op.operationId} lacks a 200 response schema`);
+            }
+        }
+        assert.deepEqual([...opIds].sort(), ['parseReadme', 'validateReadme']);
+
+        const schemas = spec.components.schemas;
+        for (const name of ['ReadmeInput', 'ParseResponse', 'ValidateResponse', 'ValidationCheck', 'ErrorEnvelope']) {
+            assert.ok(schemas[name], `missing component schema ${name}`);
+        }
+        // Typed request field + typed check statuses (function-calling friendly).
+        assert.equal(schemas.ReadmeInput.required[0], 'readme');
+        assert.deepEqual(schemas.ValidationCheck.properties.status.enum.sort(), ['fail', 'info', 'pass', 'warn']);
+        assert.deepEqual(schemas.ValidationCheck.properties.id.enum.includes('changelog_section'), true);
+    }
+});
+
+test('POST /api/parse returns structured readme data', async () => {
+    const res = await post('/api/parse', JSON.stringify({readme: GOOD_README}));
+    assert.equal(res.status, 200);
+    assert.match(res.contentType, /^application\/json/);
+    const body = JSON.parse(res.text);
+    assert.equal(body.data.name, 'My Awesome Plugin');
+    // Header keys are returned exactly as written in the file.
+    assert.match(body.data.headers['Stable tag'], /^1\.2\.0$/);
+    assert.ok(body.data.sections.some((s) => s.title === 'Changelog'));
+    assert.equal(body.data.faq.length, 1);
+    assert.deepEqual(body.data.screenshots[0], {number: '1', caption: 'The settings screen'});
+});
+
+test('POST /api/parse accepts raw text/plain bodies', async () => {
+    const res = await post('/api/parse', GOOD_README, 'text/plain');
+    assert.equal(res.status, 200);
+    assert.equal(JSON.parse(res.text).data.name, 'My Awesome Plugin');
+});
+
+test('POST /api/validate scores a compliant readme highly', async () => {
+    const res = await post('/api/validate', JSON.stringify({readme: GOOD_README}));
+    assert.equal(res.status, 200);
+    const body = JSON.parse(res.text);
+    assert.equal(body.summary.failed, 0, JSON.stringify(body.checks));
+    assert.equal(body.summary.warnings, 0, JSON.stringify(body.checks));
+    assert.ok(body.summary.score >= 90, `score too low: ${body.summary.score}`);
+    assert.equal(body.summary.total, 16);
+    const byId = Object.fromEntries(body.checks.map((c) => [c.id, c]));
+    assert.equal(byId.plugin_name_header.status, 'pass');
+    assert.equal(byId.stable_tag.detail, 'Found: 1.2.0');
+    assert.equal(byId.file_size.category, 'required');
+    assert.ok(body.checks.every((c) => typeof c.tip === 'string' || c.tip === null));
+});
+
+test('POST /api/validate reports failures with actionable tips', async () => {
+    const res = await post('/api/validate', JSON.stringify({readme: '=== Bare ===\n\nJust a name.'}));
+    assert.equal(res.status, 200);
+    const body = JSON.parse(res.text);
+    const byId = Object.fromEntries(body.checks.map((c) => [c.id, c]));
+    assert.equal(byId.changelog_section.status, 'warn');
+    assert.match(byId.changelog_section.tip, /== Changelog ==/);
+    assert.equal(byId.contributors.status, 'fail');
+    assert.ok(body.summary.failed > 0 && body.summary.total >= 16);
+});
+
+test('API errors are structured JSON with codes and hints', async () => {
+    const invalid = await post('/api/parse', '{not json');
+    assert.equal(invalid.status, 400);
+    assertErrorEnvelope(invalid.text, 400, 'invalid_json');
+
+    const missing = await post('/api/validate', '{}');
+    assert.equal(missing.status, 400);
+    assertErrorEnvelope(missing.text, 400, 'missing_readme');
+
+    const notString = await post('/api/validate', '{"readme": 42}');
+    assert.equal(notString.status, 400);
+    assertErrorEnvelope(notString.text, 400, 'invalid_readme');
+
+    const empty = await post('/api/parse', '', 'text/plain');
+    assert.equal(empty.status, 400);
+    assertErrorEnvelope(empty.text, 400, 'missing_readme');
+
+    const badType = await post('/api/validate', '<x/>', 'text/xml');
+    assert.equal(badType.status, 415);
+    assertErrorEnvelope(badType.text, 415, 'unsupported_media_type');
+
+    const wrongMethod = await req('/api/validate');
+    assert.equal(wrongMethod.status, 405);
+    assertErrorEnvelope(wrongMethod.text, 405, 'method_not_allowed');
+
+    const unknown = await req('/api/no-such-endpoint');
+    assert.equal(unknown.status, 404);
+    assertErrorEnvelope(unknown.text, 404, 'unknown_endpoint');
+
+    // API paths never fall back to HTML or markdown error pages.
+    for (const err of [invalid, missing, notString, empty, badType, wrongMethod, unknown]) {
+        assert.match(err.contentType, /^application\/json/, `expected JSON, got ${err.contentType}`);
+    }
+});
+
+test('API paths ignore Accept: text/markdown negotiation', async () => {
+    const res = await req('/api/no-such-endpoint', {'Accept': 'text/markdown'});
+    assert.equal(res.status, 404);
+    assert.match(res.contentType, /^application\/json/);
+
+    const ok = await post('/api/validate', '{"readme": "=== X ==="}');
+    assert.equal(ok.status, 200);
+    assert.match(ok.contentType, /^application\/json/);
+});
+
+// --- Developer portal --------------------------------------------------------
+
+test('/developers portal documents the API and links the spec', async () => {
+    const res = await req('/developers');
+    assert.equal(res.status, 200);
+    assert.match(res.contentType, /^text\/html/);
+    assert.match(res.text, /<h1[^>]*>/);
+    assert.ok(textLength(res.text) >= 500);
+    assert.match(res.text, /openapi\.json/);
+    assert.match(res.text, /\/api\/validate/);
+    assert.match(res.text, /missing_readme/);
+});
+
+test('/developers ships PHP and JS samples with copyable code blocks', async () => {
+    const res = await req('/developers');
+    // PHP + JavaScript code samples
+    assert.match(res.text, /curl_init/, 'PHP sample missing');
+    assert.match(res.text, /fetch\(/, 'JavaScript sample missing');
+    assert.match(res.text, />PHP</);
+    assert.match(res.text, />JavaScript</);
+    // Every code sample carries a copy button wired to the shared handler
+    const buttons = res.text.match(/data-code-copy/g) ?? [];
+    assert.ok(buttons.length >= 4, `expected >= 4 copy buttons, found ${buttons.length}`);
+    assert.match(res.text, /code-sample/);
+});
+
+test('the API is discoverable from the homepage', async () => {
+    const home = await req('/');
+    assert.match(home.text, /href="\/developers"/);
+    assert.match(home.text, /\/openapi\.json/);
+});
+
+test('/developers participates in markdown negotiation', async () => {
+    const md = await req('/developers', {'Accept': 'text/markdown'});
+    assert.match(md.contentType, /^text\/markdown/);
+    assert.match(md.text, /operationId validateReadme/);
+
+    const twin = await req('/md/developers');
+    assert.equal(twin.status, 200);
+    assert.match(twin.contentType, /^text\/markdown/);
+});
+
+test('llms.txt documents API usage for agents', async () => {
+    const res = await req('/llms.txt');
+    assert.match(res.text, /## API/);
+    assert.match(res.text, /api\/validate/);
+    assert.match(res.text, /openapi\.json/);
+    assert.match(res.text, /operationIds \(parseReadme, validateReadme\)/);
+});
+
+test('sitemap.xml includes the developer portal', async () => {
+    const res = await req('/sitemap.xml');
+    assert.ok(res.text.includes('https://wpreadme.ir/developers'));
 });
