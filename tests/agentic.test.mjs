@@ -196,6 +196,17 @@ test('trust pages render real content (500+ chars)', async () => {
     }
 });
 
+test('about page lists the API among its features', async () => {
+    const res = await req('/about');
+    assert.match(res.text, /JSON API/);
+    assert.match(res.text, /\/developers/);
+    assert.match(res.text, /openapi\.json/);
+
+    const md = await req('/md/about');
+    assert.match(md.text, /JSON API/);
+    assert.match(md.text, /POST \/api\/validate/);
+});
+
 test('donate CTA renders on about, developers, and contact', async () => {
     for (const page of ['/about', '/developers', '/contact']) {
         const res = await req(page);
