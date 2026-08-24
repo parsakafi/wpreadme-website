@@ -21,7 +21,8 @@ import DonateCta from "../components/DonateCta.astro";
         <p>
             WPReadme Preview lets you paste or upload your WordPress plugin <code>readme.txt</code> file and see exactly
             how it will look on WordPress.org before you publish. It parses the standard WordPress readme.txt format,
-            including headers, description, installation, FAQ, screenshots, and changelog, and renders a faithful preview
+            including headers, description, installation, FAQ, screenshots, and changelog, and renders a faithful
+            preview
             that matches the official plugin directory layout.
         </p>
 
@@ -37,7 +38,8 @@ import DonateCta from "../components/DonateCta.astro";
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                         <polyline points="14 2 14 8 20 8"/>
                         <line x1="16" y1="13" x2="8" y2="13"/>
@@ -50,7 +52,8 @@ import DonateCta from "../components/DonateCta.astro";
 
             <div class="feature-card">
                 <div class="feature-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="17 8 12 3 7 8"/>
                         <line x1="12" y1="3" x2="12" y2="15"/>
@@ -62,7 +65,8 @@ import DonateCta from "../components/DonateCta.astro";
 
             <div class="feature-card">
                 <div class="feature-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                         <polyline points="14 2 14 8 20 8"/>
                     </svg>
@@ -73,31 +77,54 @@ import DonateCta from "../components/DonateCta.astro";
 
             <div class="feature-card">
                 <div class="feature-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                         <polyline points="22 4 12 14.01 9 11.01"/>
                     </svg>
                 </div>
                 <h3>Readme Validator</h3>
-                <p>Auto-validates your readme.txt against WordPress.org requirements with a circular progress bar and categorized tips for Required, Recommended, and Optional checks.</p>
+                <p>Auto-validates your readme.txt against WordPress.org requirements with a circular progress bar and
+                    categorized tips for Required, Recommended, and Optional checks.</p>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
                         <line x1="8" y1="21" x2="16" y2="21"/>
                         <line x1="12" y1="17" x2="12" y2="21"/>
                     </svg>
                 </div>
                 <h3>WordPress.org Layout</h3>
-                <p>Preview matches the official plugin directory layout with tabs for Details, Reviews, Installation, and Development.</p>
+                <p>Preview matches the official plugin directory layout with tabs for Details, Reviews, Installation,
+                    and Development.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                </div>
+                <h3>JSON API</h3>
+                <p>Parse and validate readme.txt programmatically. Free endpoints with typed request and response
+                    schemas, no API key required.</p>
             </div>
         </div>
 
+        <p>
+            The full API surface is documented at <a href="/developers">API &amp; Developers</a>,
+            with a machine-readable OpenAPI specification at <a href="/openapi.json">/openapi.json</a>.
+        </p>
+
         <h2>Supported readme.txt sections</h2>
         <ul>
-            <li><strong>Header</strong>, plugin name, contributors, tags, requirements, license, and short description</li>
+            <li><strong>Header</strong>, plugin name, contributors, tags, requirements, license, and short description
+            </li>
             <li><strong>Description</strong>, full plugin description with markdown support</li>
             <li><strong>Installation</strong>, setup instructions and requirements</li>
             <li><strong>Frequently Asked Questions</strong>, parsed as expandable Q&amp;A items</li>
@@ -111,15 +138,19 @@ import DonateCta from "../components/DonateCta.astro";
 
         <h2>Validator checks</h2>
         <p>
-            The built-in validator checks your readme.txt against WordPress.org standards, organized into three categories:
+            The built-in validator checks your readme.txt against WordPress.org standards, organized into three
+            categories:
         </p>
         <ul>
-            <li><strong>Required</strong>, Plugin Name, Contributors, Tags, Stable Tag, License, Short Description, Description, Changelog, File Size</li>
+            <li><strong>Required</strong>, Plugin Name, Contributors, Tags, Stable Tag, License, Short Description,
+                Description, Changelog, File Size
+            </li>
             <li><strong>Recommended</strong>, Requires at least, Tested up to, Installation section</li>
             <li><strong>Optional</strong>, Requires PHP, FAQ section, Screenshots, Donate link</li>
         </ul>
         <p>
-            Each failed check includes a tip with the exact line to add and a link to the relevant WordPress.org documentation.
+            Each failed check includes a tip with the exact line to add and a link to the relevant WordPress.org
+            documentation.
         </p>
 
         <h2>Format reference</h2>
@@ -127,12 +158,12 @@ import DonateCta from "../components/DonateCta.astro";
             This tool follows the official WordPress readme.txt standard as documented at&nbsp;
             <a href="https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/" target="_blank"
                rel="noopener">
-               developer.wordpress.org
+                developer.wordpress.org
             </a>.
         </p>
     </section>
 
-    <DonateCta />
+    <DonateCta/>
 </BaseLayout>
 
 <style>
