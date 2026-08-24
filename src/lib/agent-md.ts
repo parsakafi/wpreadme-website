@@ -84,6 +84,7 @@ The WordPress plugin directory uses a specific readme.txt format. Formatting mis
 - **Example Files**: load pre-built example readme.txt files to see how different plugins are formatted.
 - **Readme Validator**: auto-validates against WordPress.org requirements with a progress bar and categorized tips for Required, Recommended, and Optional checks.
 - **WordPress.org Layout**: preview matches the official plugin directory layout with tabs for Details, Reviews, Installation, and Development.
+- **JSON API**: parse and validate readme.txt programmatically via POST /api/parse and POST /api/validate; free, no API key required, documented by an OpenAPI spec at /openapi.json.
 
 ## Supported readme.txt sections
 
