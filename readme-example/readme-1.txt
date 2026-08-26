@@ -9,7 +9,7 @@ Stable tag: 1.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Lets admins set an Iran Post (Post BarCode) tracking code from the WooCommerce order screen and notify the customer — as a Jetexir add-on.
+Lets admins set an Iran Post (Post BarCode) tracking code from the WooCommerce order screen and notify the customer, as a Jetexir add-on.
 
 == Description ==
 
@@ -21,14 +21,14 @@ The config of add-on appears in **Jetexir → Order → Iran Post**.
 
 = Key Features =
 
-* **Admin tracking field** — Adds a "Post tracking code" input to the WooCommerce admin order screen (after the shipping address), using HPOS-compatible meta saving.
-* **Customer order detail** — Shows the tracking code on the customer's WooCommerce account order detail page (My Account → Orders → View order), with an optional clickable tracking link.
-* **Customer e-mail notification** — Optionally sends an e-mail to the customer whenever a tracking code is set or changed, with `{tracking_code}`, `{tracking_link}`, and `{order_number}` tokens.
-* **Configurable field label** — Override the default Persian order-screen label.
-* **Configurable tracking URL** — Builds a clickable tracking link; defaults to the Iran Post radar URL.
-* **Clickable customer link** — Render the tracking code as a tracking link on the customer's order detail page (toggle).
-* **Jetexir add-on** — Toggle it on/off from Jetexir → Addons; its settings live in the Jetexir Order tab.
-* **Fully translatable** — Ships with a `.pot` template and a Persian (`fa_IR`) translation; text domain `jetexir-iran-post`.
+* **Admin tracking field**. Adds a "Post tracking code" input to the WooCommerce admin order screen (after the shipping address), using HPOS-compatible meta saving.
+* **Customer order detail**. Shows the tracking code on the customer's WooCommerce account order detail page (My Account → Orders → View order), with an optional clickable tracking link.
+* **Customer e-mail notification**. Optionally sends an e-mail to the customer whenever a tracking code is set or changed, with `{tracking_code}`, `{tracking_link}`, and `{order_number}` tokens.
+* **Configurable field label**. Override the default Persian order-screen label.
+* **Configurable tracking URL**. Builds a clickable tracking link; defaults to the Iran Post radar URL.
+* **Clickable customer link**. Render the tracking code as a tracking link on the customer's order detail page (toggle).
+* **Jetexir add-on**. Toggle it on/off from Jetexir → Addons; its settings live in the Jetexir Order tab.
+* **Fully translatable**. Ships with a `.pot` template and a Persian (`fa_IR`) translation; text domain `jetexir-iran-post`.
 
 = How it works =
 
@@ -42,7 +42,7 @@ The config of add-on appears in **Jetexir → Order → Iran Post**.
 
 This plugin does not send any data to external services on its own.
 
-When a tracking URL is configured (or the default Iran Post radar URL is used), the **tracking link** shown to customers points to the Iran Post tracking page (https://tracking.post.ir by default) or Tipax (https://mt.tipax.ir). No data is transmitted by the plugin itself — the link is simply opened in the customer's browser when they click it.
+When a tracking URL is configured (or the default Iran Post radar URL is used), the **tracking link** shown to customers points to the Iran Post tracking page (https://tracking.post.ir by default) or Tipax (https://mt.tipax.ir). No data is transmitted by the plugin itself. The link is simply opened in the customer's browser when they click it.
 
 == Installation ==
 
@@ -79,7 +79,7 @@ On any WooCommerce order, in the admin edit screen, just below the shipping addr
 
 = Can customers see their tracking code? =
 
-Yes — it is shown on the customer's **View order** page in My Account (My Account → Orders → View order), once an admin has saved a code for that order.
+Yes, it is shown on the customer's **View order** page in My Account (My Account → Orders → View order), once an admin has saved a code for that order.
 
 = Can I change the e-mail text? =
 

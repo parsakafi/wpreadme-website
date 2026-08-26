@@ -84,7 +84,7 @@ Jetexir like WooCommerce has minimum requirements
 
 = Automatic installation =
 
-Automatic installation is the easiest option — WordPress will handle the file transfer, and you won’t need to leave your web browser. To do an automatic install of Jetexir, log in to your WordPress dashboard, navigate to the Plugins menu, and click “Add New.”
+Automatic installation is the easiest option. WordPress will handle the file transfer, and you won’t need to leave your web browser. To do an automatic install of Jetexir, log in to your WordPress dashboard, navigate to the Plugins menu, and click “Add New.”
 
 In the search field type “Jetexir,” then click “Search Plugins.” Once you’ve found us, you can view details about it such as the point release, rating, and description. Most importantly of course, you can install it by! Click “Install Now,” and WordPress will take it from there.
 

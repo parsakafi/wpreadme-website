@@ -42,7 +42,7 @@ export function preferredType(header: string | null): string | null {
     for (const candidate of PRODUCES) {
         // For each candidate, find the *most specific* matching range.
         // RFC 9110 §12.5.1: specific ranges override less specific ones
-        // regardless of q — so `text/html;q=0, */*;q=1` correctly rejects
+        // regardless of q, so `text/html;q=0, */*;q=1` correctly rejects
         // text/html instead of letting the wildcard override.
         let matched: AcceptEntry | null = null;
         let matchedPosition = Infinity;
