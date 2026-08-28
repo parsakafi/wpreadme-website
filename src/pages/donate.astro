@@ -41,7 +41,8 @@ const cryptoAddresses = [
 ];
 ---
 
-<BaseLayout title="Donate" description="Support WPReadme Preview development with a cryptocurrency donation." current="donate">
+<BaseLayout title="Donate" description="Support WPReadme Preview development with a cryptocurrency donation."
+            current="donate">
     <section class="page-hero">
         <div class="container">
             <h1 class="page-title">Support WPReadme Preview</h1>
@@ -232,9 +233,17 @@ const cryptoAddresses = [
         transition: opacity 0.2s ease;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1200px) {
         .crypto-grid {
             grid-template-columns: 1fr;
+            padding-inline: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .crypto-card {
+            flex-direction: column;
+            align-items: start;
         }
     }
 </style>
